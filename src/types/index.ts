@@ -3,6 +3,7 @@ export interface WorkoutTemplate {
   name: string
   description?: string
   createdAt: string
+  exercises: TemplateExercise[]
 }
 
 export interface TemplateExercise {
@@ -17,6 +18,8 @@ export interface TemplateExercise {
 
 export interface WorkoutSession {
   id: number
+  workoutTemplateId?: number
+  workoutTemplateName?: string
   templateId?: number
   startedAt: string
   endedAt?: string
