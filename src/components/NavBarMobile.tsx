@@ -1,14 +1,16 @@
 import { Button } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
 export default function NavBarMobile() {
+    const navigate = useNavigate();
     return (
                 <div className="fixed bottom-0 left-0 z-50 w-full h-16 border-t border-default">
                     <div className="grid h-full grid-cols-4 mx-auto font-medium">
-                        <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5">
+                        <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" onClick={() => navigate('/')}>
                             <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5" /></svg>
                             <span className="text-sm">Home</span>
                         </Button>
-                        <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5">
+                        <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" onClick={() => navigate('/session')}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Clock--Streamline-Guidance-Free" height="24" width="24">
                                 <desc>
                                     Clock Streamline Icon: https://streamlinehq.com

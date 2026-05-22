@@ -1,11 +1,44 @@
-import NavBarMobile from '../components/NavBarMobile'
-import { useLastSession } from '../hooks/useSessions'
+import { useCreateSession, useLastOngoingSession, useLastSession } from '../hooks/useSessions'
 import LastSessionCard from '../components/LastSessionCard';
 import NewSessionCard from '../components/NewSessionCard';
+import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
+import { Button } from 'flowbite-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { WorkoutTemplate } from '../types';
+import { useStore } from '../stores/StoreSession';
 
 export default function HomePage() {
+    const navigate = useNavigate();
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
-    console.log('Session:', session)
+    const { data: ongoingSession, isLoading: isLoadingOngoingSession, error: errorOngoingSession } = useLastOngoingSession()
+    const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
+    const { mutate: createSession } = useCreateSession()
+    const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
+    
+
+
+    const startSession =() => {
+        if (workoutTemplateToStart) {
+            createSession({
+                workoutTemplateId: workoutTemplateToStart.id
+            })
+            navigate('/session')
+        }
+        
+    }
+
+    useEffect(() => {
+    if (ongoingSession) {
+        useStore.getState().setOngoingSession(ongoingSession)
+    } else {
+        useStore.getState().setOngoingSession(null)
+    }
+    }, [errorOngoingSession, ongoingSession])
+
+    console.log('session', session)
+    console.log('workoutTemplates', workoutTemplates)
+
     return (
 
         <div className='w-full px-4'>
@@ -20,16 +53,21 @@ export default function HomePage() {
                     </div>
                 </div>
                 <LastSessionCard session={session} isLoading={isLoadingSession} error={errorSession} />
-                <div className="m-2">
+                <div className="mt-2">
                     <div className="flex">
                         <h3>START SESSION</h3>
                     </div>
                 </div>
-                <NewSessionCard session={session} isLoading={isLoadingSession} error={errorSession} />
+
+                {workoutTemplates?.map(template => (
+                    <NewSessionCard template={template} isLoading={isLoadingTemplates} error={errorTemplates} setWorkoutTemplateToStart={setWorkoutTemplateToStart} key={template.id} />
+                ))}
             </div>
-
-
-            <NavBarMobile />
+            <div className='flex mt-4 mb-20'>
+                {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-lg text-gray-500'>Select a session to start</p>}
+                {(workoutTemplateToStart || !workoutTemplateToStart) && ongoingSession && <p className='w-full text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
+                {workoutTemplateToStart && !ongoingSession && <Button className='w-full' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
+            </div>
         </div>
     )
 }

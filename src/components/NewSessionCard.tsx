@@ -1,14 +1,14 @@
-import { Card } from "flowbite-react";
-import type { WorkoutSession } from "../types";
-import { formatDuration, formatSessionDate } from "../utils/date";
+import { Card, Radio } from "flowbite-react";
+import type { WorkoutTemplate } from "../types";
 
 interface NewSessionCardProps {
-    session: WorkoutSession | undefined
+    template: WorkoutTemplate | undefined
     isLoading: boolean
     error: any
+    setWorkoutTemplateToStart?: (template: WorkoutTemplate) => void
 }
 
-export default function NewSessionCard({session, isLoading, error}: NewSessionCardProps) {
+export default function NewSessionCard({ template, isLoading, error, setWorkoutTemplateToStart }: NewSessionCardProps) {
     if (isLoading) {
         return <Card>
             <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
@@ -19,23 +19,31 @@ export default function NewSessionCard({session, isLoading, error}: NewSessionCa
 
     if (error) {
         return <Card>
-            <div className="text-red-500">Error loading last session</div>
+            <div className="text-red-500">Error loading templates</div>
         </Card>
     }
 
-    if (!session) {
+    if (!template) {
         return <Card>
-            <p className="text-sm text-gray-400"> No sessions yet - start your first one below.</p>
+            <p className="text-sm text-gray-400"> No templates created - create first template.</p>
         </Card>
     }
     return (
-                <Card href="#">
-                    <div className='flex items-center'>
-                        <h2>{session?.workoutTemplateName}</h2>
+        <Card className="mt-2 mb-2">
+            <div className='flex items-center justify-between'>
+                <h2>{template?.name}</h2>
+                <Radio className="h-8 w-8" color="lime" id={`${template.id}`} name="newSessionId" onChange={() => setWorkoutTemplateToStart(template)}/>
+            </div>
+            <div className='flex items-center -mt-6'>
+                <h3>{template?.description}</h3>
+            </div>
+            <div className="flex flex-row gap-2">
+                {template.exercises.map(ex => (
+                    <div className="font-thin rounded-lg bg-gray-50 p-3 text-gray-900 hover:bg-gray-100 hover:shadow dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" key={ex.id}>
+                        {ex.exerciseName}
                     </div>
-                        <div className='flex items-center -mt-6'>
-                            <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds)}</h3>
-                        </div>
-                </Card>
+                ))}
+            </div>
+        </Card>
     )
 }

@@ -12,27 +12,32 @@ export interface TemplateExercise {
   exerciseName: string
   defaultSets?: number
   defaultReps?: number
-  defaultWeightKg?: number
+  defaultWeight?: number
   sortOrder: number
 }
 
 export interface WorkoutSession {
-  id: number
+  id?: number
   workoutTemplateId?: number
   workoutTemplateName?: string
-  templateId?: number
-  startedAt: string
+  startedAt?: string
   endedAt?: string
   durationSeconds?: number
   notes?: string
+  exerciseLogs?: ExerciseLog[]
 }
 
 export interface ExerciseLog {
-  id: number
-  sessionId: number
+  id?: number
+  workoutSessionId: number
   exerciseName: string
-  setNumber: number
+  setNumber?: number
   reps?: number
   weightKg?: number
-  loggedAt: string
+  loggedAt?: string
+}
+
+export interface StoreState {
+  ongoingSession: WorkoutSession | null
+  setOngoingSession: (session: WorkoutSession | null) => void
 }
