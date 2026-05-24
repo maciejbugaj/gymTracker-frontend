@@ -1,7 +1,8 @@
-import {useMutation, useQuery} from '@tanstack/react-query'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import { getSessions,getLastSession, createSession, endSession, getLastOngoingSession } from '../api/sessions'
 import { useStore } from '../stores/StoreSession'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 export const useSessions = () => {
     return useQuery({
@@ -31,10 +32,12 @@ export const useLastOngoingSession = () => {
 }
 
 export const useCreateSession = () => {
+    const navigate = useNavigate()
     return useMutation({
         mutationFn: createSession,
         onSuccess: (data) => {
             useStore.getState().setOngoingSession(data)
+            navigate('/session')
         },
         onError: (error) => {
             console.error('Error creating session', error)
@@ -43,10 +46,14 @@ export const useCreateSession = () => {
 }
 
 export const useFinishSession = () => {
+    const queryClient = useQueryClient()
+    const navigate = useNavigate()
     return useMutation({
         mutationFn: (sessionId: number) => endSession(sessionId),
         onSuccess: () => {
+            queryClient.setQueryData(['lastOngoingSession'], null)
             useStore.getState().setOngoingSession(null)
+            navigate('/')
         },
         onError: (error) => {
             console.error('Error finishing session', error)

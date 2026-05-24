@@ -4,36 +4,32 @@ import NewSessionCard from '../components/NewSessionCard';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
 import { Button } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { WorkoutTemplate } from '../types';
 import { useStore } from '../stores/StoreSession';
 
 export default function HomePage() {
-    const navigate = useNavigate();
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
     const { data: ongoingSession, isLoading: isLoadingOngoingSession, error: errorOngoingSession } = useLastOngoingSession()
     const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
     const { mutate: createSession } = useCreateSession()
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
-    
 
 
-    const startSession =() => {
+
+    const startSession = () => {
         if (workoutTemplateToStart) {
             createSession({
                 workoutTemplateId: workoutTemplateToStart.id
             })
-            navigate('/session')
         }
-        
     }
 
     useEffect(() => {
-    if (ongoingSession) {
-        useStore.getState().setOngoingSession(ongoingSession)
-    } else {
-        useStore.getState().setOngoingSession(null)
-    }
+        if (ongoingSession) {
+            useStore.getState().setOngoingSession(ongoingSession)
+        } else {
+            useStore.getState().setOngoingSession(null)
+        }
     }, [errorOngoingSession, ongoingSession])
 
     console.log('session', session)

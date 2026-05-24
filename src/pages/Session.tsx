@@ -10,10 +10,16 @@ import { useNavigate } from 'react-router-dom';
 
 
 export default function Session() {
-    const navigate = useNavigate();
-    const session = useStore((state) => state.ongoingSession)
-    const { data: workoutTemplate } = session ? useWorkoutTemplateById(session?.workoutTemplateId) : { data: null }
-    const { data: previousExerciseLogs } = session ? useGetExerciseLogsByWorkoutTemplateId(session!.workoutTemplateId!) : { data: [] }
+    const navigate = useNavigate()
+
+    const sessionId = useStore((state) => state.ongoingSession?.id)
+    const workoutTemplateId = useStore((state) => state.ongoingSession?.workoutTemplateId)
+    const workoutTemplateName = useStore((state) => state.ongoingSession?.workoutTemplateName)
+    const startedAt = useStore((state) => state.ongoingSession?.startedAt)
+    const exerciseLogs = useStore((state) => state.ongoingSession?.exerciseLogs) ?? []
+
+    const { data: workoutTemplate } = useWorkoutTemplateById(workoutTemplateId)
+    const { data: previousExerciseLogs } = useGetExerciseLogsByWorkoutTemplateId(workoutTemplateId)
     console.log('workoutTemplate', workoutTemplate)
     console.log('previousExerciseLogs', previousExerciseLogs)
 
@@ -23,30 +29,27 @@ export default function Session() {
     function handleLogSet(event: React.SubmitEvent<HTMLFormElement>, exerciseName: string) {
         event.preventDefault()
         const form = event.currentTarget
-        const reps = Number(form.reps.value)
-        const weightKg = Number(form.weightKg.value)
+
         const exerciseLog: ExerciseLog = {
-            workoutSessionId: session!.id!,
+            workoutSessionId: sessionId,
             exerciseName: exerciseName,
-            reps,
-            weightKg
+            reps: Number(form.reps.value),
+            weightKg: Number(form.weightKg.value)
         }
+
         console.log('Logging set', exerciseLog)
         logExerciseSet(exerciseLog)
     }
 
     function handleFinishSession() {
-        const sessionId = session?.id
-        if (sessionId) {
-            finishSession(sessionId)
-            navigate('/')
-        } else {
+        if (!sessionId) {
             console.error('No session to finish')
+            return
         }
-
+        finishSession(sessionId)
     }
 
-    if (!session) {
+    if (!sessionId) {
         return (
             <div className='w-full px-4'>
                 <div className='p-4 border-b'>
@@ -60,9 +63,9 @@ export default function Session() {
     return (
         <div className='w-full px-4'>
             <div className='p-4 border-b'>
-                <h1>{session?.workoutTemplateName}</h1>
+                <h1>{workoutTemplateName}</h1>
             </div>
-            <SessionDuration startedAt={session?.startedAt} />
+            <SessionDuration startedAt={startedAt} />
             <BreakTimer />
             <div className='grid'>
                 <div className="m-2">
@@ -71,28 +74,28 @@ export default function Session() {
                     </div>
                 </div>
                 {workoutTemplate?.exercises.map(exercise => (
-                    <Card key={exercise.id}>
+                    <Card key={exercise.id} className='mt-2 mb-2'>
                         <div className='flex items-center justify-between'>
                             <h2>{exercise.exerciseName}</h2>
-                            <div>{session.exerciseLogs ? session?.exerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).length : 1}/{exercise.defaultSets}</div>
+                            <div>{exerciseLogs ? exerciseLogs.filter(log => log.exerciseName === exercise.exerciseName).length : 1}/{exercise.defaultSets}</div>
 
                         </div>
                         <div className='flex items-center -mt-6'>
-                            <h3>Last:</h3>
+                            <h3>Previous:</h3>
                             {previousExerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
-                                <Badge key={log.id} color="gray" className='m-1'>Set {log.setNumber}: {log.reps} x {log.weightKg}kg</Badge>
+                                <Badge key={log.id} color="gray" className='m-1 border border-gray-200 rounded-lg'>Set {log.setNumber}: {log.reps} x {log.weightKg}kg</Badge>
                             ))}
                         </div>
                         <div>
                             <form className='flex flex-row gap-2 align-items-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
-                                <input style={{ width: '25px' }} name='reps' type='number' placeholder={exercise.defaultReps ? exercise.defaultReps.toString() : '0'} />
+                                <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='reps' type='number' placeholder={exercise.defaultReps ? exercise.defaultReps.toString() : '0'} />
                                 <p>x</p>
-                                <input style={{ width: '25px' }} name='weightKg' type='number' placeholder={exercise.defaultWeight ? exercise.defaultWeight.toString() : '0'} />kg
+                                <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='weightKg' type='number' placeholder={exercise.defaultWeight ? exercise.defaultWeight.toString() : '0'} />kg
                                 <Button type='submit' color="alternative" size="sm">Log Set</Button>
                             </form>
                         </div>
                         <div className='flex flex-row gap-2 align-items-center'>
-                            {session.exerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
+                            {exerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
                                 <Button key={log.id} color="light" size="xs">{log.setNumber}:  {log.reps} x {log.weightKg}kg</Button>
                             ))}
                         </div>
