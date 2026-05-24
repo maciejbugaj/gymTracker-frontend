@@ -6,12 +6,9 @@ import SessionDuration from '../components/SessionDuration';
 import { useGetExerciseLogsByWorkoutTemplateId, useLogExerciseSet } from '../hooks/useExerciseLog';
 import type { ExerciseLog } from '../types';
 import { useFinishSession } from '../hooks/useSessions';
-import { useNavigate } from 'react-router-dom';
 
 
 export default function Session() {
-    const navigate = useNavigate()
-
     const sessionId = useStore((state) => state.ongoingSession?.id)
     const workoutTemplateId = useStore((state) => state.ongoingSession?.workoutTemplateId)
     const workoutTemplateName = useStore((state) => state.ongoingSession?.workoutTemplateName)
