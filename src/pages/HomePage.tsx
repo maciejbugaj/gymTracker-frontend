@@ -9,7 +9,7 @@ import { useStore } from '../stores/StoreSession';
 
 export default function HomePage() {
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
-    const { data: ongoingSession, isLoading: isLoadingOngoingSession, error: errorOngoingSession } = useLastOngoingSession()
+    const { data: ongoingSession, error: errorOngoingSession } = useLastOngoingSession()
     const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
     const { mutate: createSession } = useCreateSession()
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
