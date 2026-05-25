@@ -5,10 +5,12 @@ import { Badge, Button, Card } from 'flowbite-react';
 import SessionDuration from '../components/SessionDuration';
 import { useGetExerciseLogsByWorkoutTemplateId, useLogExerciseSet } from '../hooks/useExerciseLog';
 import type { ExerciseLog } from '../types';
-import { useFinishSession } from '../hooks/useSessions';
+import { useFinishSession, useLastOngoingSession } from '../hooks/useSessions';
+import { useEffect } from 'react';
 
 
 export default function Session() {
+    const { data: ongoingSession, error: errorOngoingSession } = useLastOngoingSession()
     const sessionId = useStore((state) => state.ongoingSession?.id)
     const workoutTemplateId = useStore((state) => state.ongoingSession?.workoutTemplateId)
     const workoutTemplateName = useStore((state) => state.ongoingSession?.workoutTemplateName)
@@ -17,6 +19,7 @@ export default function Session() {
 
     const { data: workoutTemplate } = useWorkoutTemplateById(workoutTemplateId)
     const { data: previousExerciseLogs } = useGetExerciseLogsByWorkoutTemplateId(workoutTemplateId)
+
     console.log('workoutTemplate', workoutTemplate)
     console.log('previousExerciseLogs', previousExerciseLogs)
 
@@ -45,6 +48,14 @@ export default function Session() {
         }
         finishSession(sessionId)
     }
+
+    useEffect(() => {
+        if (ongoingSession) {
+            useStore.getState().setOngoingSession(ongoingSession)
+        } else {
+            useStore.getState().setOngoingSession(null)
+        }
+    }, [errorOngoingSession, ongoingSession])
 
     if (!sessionId) {
         return (
