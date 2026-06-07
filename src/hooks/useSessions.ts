@@ -1,5 +1,5 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
-import { getSessions,getLastSession, createSession, endSession, getLastOngoingSession } from '../api/sessions'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getSessions, getLastSession, createSession, endSession, getLastOngoingSession } from '../api/sessions'
 import { useStore } from '../stores/StoreSession'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
@@ -58,6 +58,6 @@ export const useFinishSession = () => {
         onError: (error) => {
             console.error('Error finishing session', error)
         }
-        
+
     })
 }

@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getWorkoutTemplateById, getWorkoutTemplates } from '../api/workoutTemplates'
 
 export const useWorkoutTemplates = () => {
@@ -11,7 +11,7 @@ export const useWorkoutTemplates = () => {
 export const useWorkoutTemplateById = (id: number) => {
     return useQuery({
         queryKey: ['workoutTemplate', id],
-        enabled:  !!id,
+        enabled: !!id,
         queryFn: () => getWorkoutTemplateById(id),
     })
 }

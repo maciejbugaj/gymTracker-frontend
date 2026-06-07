@@ -8,7 +8,7 @@ interface LastSessionCardProps {
     error: any
 }
 
-export default function LastSessionCard({session, isLoading, error}: LastSessionCardProps) {
+export default function LastSessionCard({ session, isLoading, error }: LastSessionCardProps) {
     if (isLoading) {
         return <Card>
             <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
@@ -29,13 +29,13 @@ export default function LastSessionCard({session, isLoading, error}: LastSession
         </Card>
     }
     return (
-                <Card href="#">
-                    <div className='flex items-center'>
-                        <h2>{session?.workoutTemplateName}</h2>
-                    </div>
-                        <div className='flex items-center -mt-6'>
-                            <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds)}</h3>
-                        </div>
-                </Card>
+        <Card href="#" >
+            <div className='flex items-center -mt-4 -ml-2'>
+                <h2>{session?.workoutTemplateName}</h2>
+            </div>
+            <div className='flex items-center -mt-6 -ml-2 text-xs sm:text-sm md:text-lg'>
+                <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds)}</h3>
+            </div>
+        </Card>
     )
 }

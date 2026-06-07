@@ -15,7 +15,6 @@ export default function HomePage() {
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
 
 
-
     const startSession = () => {
         if (workoutTemplateToStart) {
             createSession({
@@ -37,13 +36,13 @@ export default function HomePage() {
 
     return (
 
-        <div className='w-full px-4'>
-            <div className='p-4 border-b'>
-                <h1>Gym Tracker</h1>
+        <div className='w-full px-4 pb-16'>
+            <div className='p-4'>
+                <h1>GYM Tracker</h1>
                 <h3>Choose a session to start</h3>
             </div>
             <div className='grid'>
-                <div className="m-2">
+                <div>
                     <div className="flex">
                         <h3>LAST SESSION</h3>
                     </div>
@@ -60,9 +59,9 @@ export default function HomePage() {
                 ))}
             </div>
             <div className='flex mt-4 mb-20'>
-                {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-lg text-gray-500'>Select a session to start</p>}
-                {(workoutTemplateToStart || !workoutTemplateToStart) && ongoingSession && <p className='w-full text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
-                {workoutTemplateToStart && !ongoingSession && <Button className='w-full' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
+                {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-sm sm:text-xl text-gray-500'>Select a session to start</p>}
+                {(workoutTemplateToStart || !workoutTemplateToStart) && ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
+                {workoutTemplateToStart && !ongoingSession && <Button className='w-full text-xl' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
             </div>
         </div>
     )

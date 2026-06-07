@@ -30,16 +30,16 @@ export default function NewSessionCard({ template, isLoading, error, setWorkoutT
     }
     return (
         <Card className="mt-2 mb-2">
-            <div className='flex items-center justify-between'>
-                <h2>{template?.name}</h2>
-                <Radio className="h-8 w-8" color="lime" id={`${template.id}`} name="newSessionId" onChange={() => setWorkoutTemplateToStart(template)}/>
+            <div className='flex items-center justify-between -mt-4 -ml-2'>
+                <h2 className=''>{template?.name}</h2>
+                <Radio className="h-6 w-6 -mr-3" color="lime" id={`${template.id}`} name="newSessionId" onChange={() => setWorkoutTemplateToStart(template)} />
             </div>
-            <div className='flex items-center -mt-6'>
+            <div className='flex items-center justify-between -mt-6 -ml-2 text-xs sm:text-sm md:text-lg'>
                 <h3>{template?.description}</h3>
             </div>
-            <div className="flex flex-row gap-2">
+            <div className="grid grid-cols-4 gap-4">
                 {template.exercises.map(ex => (
-                    <div className="font-thin rounded-lg bg-gray-50 p-3 text-gray-900 hover:bg-gray-100 hover:shadow dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" key={ex.id}>
+                    <div className="font-thin text-[0.7em] rounded-lg bg-gray-50 p-0 text-gray-900 hover:bg-gray-100 hover:shadow dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" key={ex.id}>
                         {ex.exerciseName}
                     </div>
                 ))}

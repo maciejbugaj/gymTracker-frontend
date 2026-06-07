@@ -22,8 +22,8 @@ export default function SessionDuration({ startedAt }: SessionDurationProps) {
     }, [startedAt])
 
     return (
-              <div>
-                  Session Duration: {prettyMilliseconds(elapsedTime)}
-              </div>
+        <div>
+            Session Duration: {prettyMilliseconds(elapsedTime)}
+        </div>
     )
 }

@@ -70,7 +70,7 @@ export default function Session() {
 
     return (
         <div className='w-full px-4'>
-            <div className='p-4 border-b'>
+            <div className='p-4'>
                 <h1>{workoutTemplateName}</h1>
             </div>
             <SessionDuration startedAt={startedAt} />
@@ -90,9 +90,12 @@ export default function Session() {
                         </div>
                         <div className='flex items-center -mt-6'>
                             <h3>Previous:</h3>
-                            {previousExerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
-                                <Badge key={log.id} color="gray" className='m-1 border border-gray-200 rounded-lg'>Set {log.setNumber}: {log.reps} x {log.weightKg}kg</Badge>
-                            ))}
+                            <div className='grid grid-cols-4'>
+                                {previousExerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
+                                    <Badge key={log.id} color="gray" className='pl-1 pr-1 pt-0 pb-0 m-1 border border-gray-200 rounded-lg text-[0.6em] leading-3'>Set {log.setNumber}: {log.reps} x {log.weightKg}kg</Badge>
+                                ))}
+                            </div>
+
                         </div>
                         <div>
                             <form className='flex flex-row gap-2 align-items-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
@@ -102,9 +105,9 @@ export default function Session() {
                                 <Button type='submit' color="alternative" size="sm">Log Set</Button>
                             </form>
                         </div>
-                        <div className='flex flex-row gap-2 align-items-center'>
+                        <div className='grid grid-cols-4 gap-1 align-items-center'>
                             {exerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
-                                <Button key={log.id} color="light" size="xs">{log.setNumber}:  {log.reps} x {log.weightKg}kg</Button>
+                                <Button className='text-[0.6em] leading-3' key={log.id} color="light" size="xs">Set {log.setNumber}:  {log.reps} x {log.weightKg}kg</Button>
                             ))}
                         </div>
                     </Card>

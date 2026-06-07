@@ -39,14 +39,17 @@ export default function BreakTimer() {
     }
     return (
         <div className='grid grid-cols-6 gap-4 mt-4'>
-            Break Timer
+            <div className='col-start-1 col-end-3 font-bold'>
+                Break Timer
+            </div>
+
             <div className='col-start-1 col-end-3 '>
                 <p className='text-2xl'>{prettyMilliseconds(breakTimer)}</p>
             </div>
-            <div className='col-end-6' >
+            <div className='col-end-4 col-start-5' >
                 <Button color="alternative" size="sm" onClick={onBreakStart}>Start Break </Button>
             </div>
-            <div className='col-end-7' >
+            <div className='col-end-5 col-start-6 ml-6' >
                 <Button color="alternative" size="sm" onClick={onBreakReset}>Reset</Button>
             </div>
         </div>
