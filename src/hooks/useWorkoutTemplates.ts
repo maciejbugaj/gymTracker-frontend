@@ -8,7 +8,7 @@ export const useWorkoutTemplates = () => {
     })
 }
 
-export const useWorkoutTemplateById = (id: number) => {
+export const useWorkoutTemplateById = (id: number | undefined) => {
     return useQuery({
         queryKey: ['workoutTemplate', id],
         enabled: !!id,

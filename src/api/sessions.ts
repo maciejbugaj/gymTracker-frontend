@@ -1,5 +1,5 @@
 import client from './client'
-import type { WorkoutSession } from '../types'
+import type { CreateSessionRequest, WorkoutSession } from '../types'
 
 export const getSessions = async (): Promise<WorkoutSession[]> => {
     const { data } = await client.get('/workout-sessions')
@@ -16,7 +16,7 @@ export const getLastOngoingSession = async (): Promise<WorkoutSession> => {
     return data
 }
 
-export const createSession = async (workoutSession: WorkoutSession): Promise<WorkoutSession> => {
+export const createSession = async (workoutSession: CreateSessionRequest): Promise<WorkoutSession> => {
     const { data } = await client.post('/workout-sessions', workoutSession)
     return data
 }

@@ -16,15 +16,17 @@ export interface TemplateExercise {
   sortOrder: number
 }
 
+export interface CreateSessionRequest { workoutTemplateId: number }
+
 export interface WorkoutSession {
-  id?: number
-  workoutTemplateId?: number
-  workoutTemplateName?: string
-  startedAt?: string
-  endedAt?: string
-  durationSeconds?: number
-  notes?: string
-  exerciseLogs?: ExerciseLog[]
+    id: number
+    workoutTemplateId: number
+    workoutTemplateName: string
+    startedAt: string
+    endedAt?: string
+    durationSeconds?: number
+    notes?: string
+    exerciseLogs?: ExerciseLog[]
 }
 
 export interface ExerciseLog {

@@ -18,6 +18,11 @@ export default function LogExerciseCard() {
         event.preventDefault()
         const form = event.currentTarget
 
+        if (!sessionId) {
+            console.error('No session to log exercise for')
+            return
+        }
+
         const exerciseLog: ExerciseLog = {
             workoutSessionId: sessionId,
             exerciseName: exerciseName,
@@ -47,14 +52,14 @@ export default function LogExerciseCard() {
 
                     </div>
                     <div>
-                        <form className='flex flex-row gap-2 align-items-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
+                        <form className='flex flex-row gap-2 tems-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
                             <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='reps' type='number' placeholder={exercise.defaultReps ? exercise.defaultReps.toString() : '0'} />
                             <p>x</p>
                             <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='weightKg' type='number' placeholder={exercise.defaultWeight ? exercise.defaultWeight.toString() : '0'} />kg
                             <Button type='submit' color="alternative" size="sm">Log Set</Button>
                         </form>
                     </div>
-                    <div className='grid grid-cols-4 gap-1 align-items-center'>
+                    <div className='grid grid-cols-4 gap-1 items-center'>
                         {exerciseLogs?.filter(log => log.exerciseName === exercise.exerciseName).map(log => (
                             <Button className='text-[0.6em] leading-3' key={log.id} color="light" size="xs">Set {log.setNumber}:  {log.reps} x {log.weightKg}kg</Button>
                         ))}

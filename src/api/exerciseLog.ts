@@ -11,7 +11,7 @@ export const getExerciseLogsBySessionId = async (sessionId: number): Promise<Exe
     return data;
 }
 
-export const getPreviousExerciseLogsByWorkoutTemplateId = async (workoutTemplateId: number): Promise<ExerciseLog[]> => {
+export const getPreviousExerciseLogsByWorkoutTemplateId = async (workoutTemplateId: number | undefined): Promise<ExerciseLog[]> => {
     const { data } = await client.get(`/exercise-log/previous?workoutTemplateId=${workoutTemplateId}`)
     return data;
 }

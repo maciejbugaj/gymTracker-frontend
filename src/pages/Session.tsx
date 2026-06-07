@@ -1,14 +1,14 @@
-import { useStore } from '../stores/StoreSession'
+
 import BreakTimer from '../components/BreakTimer';
 import { Button } from 'flowbite-react';
 import SessionDuration from '../components/SessionDuration';
-import { useFinishSession, useLastOngoingSession } from '../hooks/useSessions';
-import { useEffect } from 'react';
+import { useFinishSession } from '../hooks/useSessions';
 import LogExerciseCard from '../components/LogExerciseCard';
+import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
+import { useStore } from '../stores/StoreSession';
 
 
 export default function Session() {
-    const { data: ongoingSession, error: errorOngoingSession } = useLastOngoingSession()
     const sessionId = useStore((state) => state.ongoingSession?.id)
     const workoutTemplateName = useStore((state) => state.ongoingSession?.workoutTemplateName)
     const startedAt = useStore((state) => state.ongoingSession?.startedAt)
@@ -23,13 +23,7 @@ export default function Session() {
         finishSession(sessionId)
     }
 
-    useEffect(() => {
-        if (ongoingSession) {
-            useStore.getState().setOngoingSession(ongoingSession)
-        } else {
-            useStore.getState().setOngoingSession(null)
-        }
-    }, [errorOngoingSession, ongoingSession])
+    useSyncOngoingSession();
 
     if (!sessionId) {
         return (

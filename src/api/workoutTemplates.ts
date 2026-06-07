@@ -6,7 +6,7 @@ export const getWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
     return data
 }
 
-export const getWorkoutTemplateById = async (id: number): Promise<WorkoutTemplate> => {
+export const getWorkoutTemplateById = async (id: number | undefined): Promise<WorkoutTemplate> => {
     const { data } = await client.get(`/workout-templates/${id}`)
     return data
 }

@@ -52,6 +52,7 @@ export const useFinishSession = () => {
         mutationFn: (sessionId: number) => endSession(sessionId),
         onSuccess: () => {
             queryClient.setQueryData(['lastOngoingSession'], null)
+            queryClient.invalidateQueries({ queryKey: ['lastSession'] })
             useStore.getState().setOngoingSession(null)
             navigate('/')
         },

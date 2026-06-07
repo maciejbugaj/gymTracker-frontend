@@ -3,13 +3,13 @@ import LastSessionCard from '../components/LastSessionCard';
 import NewSessionCard from '../components/NewSessionCard';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
 import { Button } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { WorkoutTemplate } from '../types';
-import { useStore } from '../stores/StoreSession';
+import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
 
 export default function HomePage() {
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
-    const { data: ongoingSession, error: errorOngoingSession } = useLastOngoingSession()
+    const { data: ongoingSession } = useLastOngoingSession()
     const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
     const { mutate: createSession } = useCreateSession()
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
@@ -22,17 +22,8 @@ export default function HomePage() {
             })
         }
     }
-
-    useEffect(() => {
-        if (ongoingSession) {
-            useStore.getState().setOngoingSession(ongoingSession)
-        } else {
-            useStore.getState().setOngoingSession(null)
-        }
-    }, [errorOngoingSession, ongoingSession])
-
-    console.log('session', session)
-    console.log('workoutTemplates', workoutTemplates)
+    
+    useSyncOngoingSession();
 
     return (
 
@@ -60,7 +51,7 @@ export default function HomePage() {
             </div>
             <div className='flex mt-4 mb-20'>
                 {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-sm sm:text-xl text-gray-500'>Select a session to start</p>}
-                {(workoutTemplateToStart || !workoutTemplateToStart) && ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
+                {ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
                 {workoutTemplateToStart && !ongoingSession && <Button className='w-full text-xl' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
             </div>
         </div>

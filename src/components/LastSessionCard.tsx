@@ -5,7 +5,7 @@ import { formatDuration, formatSessionDate } from "../utils/date";
 interface LastSessionCardProps {
     session: WorkoutSession | undefined
     isLoading: boolean
-    error: any
+    error: Error | null
 }
 
 export default function LastSessionCard({ session, isLoading, error }: LastSessionCardProps) {
@@ -34,7 +34,7 @@ export default function LastSessionCard({ session, isLoading, error }: LastSessi
                 <h2>{session?.workoutTemplateName}</h2>
             </div>
             <div className='flex items-center -mt-6 -ml-2 text-xs sm:text-sm md:text-lg'>
-                <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds)}</h3>
+                <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds ?? 0)}</h3>
             </div>
         </Card>
     )
