@@ -6,12 +6,7 @@ export const logExerciseSet = async (exerciseLog: ExerciseLog): Promise<Exercise
     return data
 }
 
-export const getExerciseLogsBySessionId = async (sessionId: number): Promise<ExerciseLog[]> => {
-    const { data } = await client.get(`/exercise-log/${sessionId}`)
-    return data;
-}
-
-export const getPreviousExerciseLogsByWorkoutTemplateId = async (workoutTemplateId: number | undefined): Promise<ExerciseLog[]> => {
+export const getPreviousExerciseLogsByWorkoutTemplateId = async (workoutTemplateId: number): Promise<ExerciseLog[]> => {
     const { data } = await client.get(`/exercise-log/previous?workoutTemplateId=${workoutTemplateId}`)
     return data;
 }

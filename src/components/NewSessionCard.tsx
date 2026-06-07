@@ -31,7 +31,7 @@ export default function NewSessionCard({ template, isLoading, error, setWorkoutT
     return (
         <Card className="mt-2 mb-2">
             <div className='flex items-center justify-between -mt-4 -ml-2'>
-                <h2 className=''>{template?.name}</h2>
+                <h2 className=''>{template.name}</h2>
                 <Radio className="h-6 w-6 -mr-3" color="lime" id={`${template.id}`} name="newSessionId" onChange={() => setWorkoutTemplateToStart?.(template)} />
             </div>
             <div className='flex items-center justify-between -mt-6 -ml-2 text-xs sm:text-sm md:text-lg'>

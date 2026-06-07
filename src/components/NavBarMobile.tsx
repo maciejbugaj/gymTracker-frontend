@@ -16,11 +16,11 @@ export default function NavBarMobile() {
                     <FaClock size={20} />
                     <span className="text-sm">Session</span>
                 </Button>
-                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5">
+                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" disabled>
                     <FaCalendarAlt size={20} />
                     <span className="text-sm">History</span>
                 </Button>
-                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5">
+                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" disabled>
                     <IoIosCreate size={20} />
                     <span className="text-sm">Templates</span>
                 </Button>

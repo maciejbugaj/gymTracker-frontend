@@ -22,6 +22,6 @@ export const useGetExerciseLogsByWorkoutTemplateId = (workoutTemplateId: number 
     return useQuery({
         queryKey: ['exerciseLogsByWorkoutTemplateId', workoutTemplateId],
         enabled: !!workoutTemplateId,
-        queryFn: () => getPreviousExerciseLogsByWorkoutTemplateId(workoutTemplateId),
+        queryFn: () => getPreviousExerciseLogsByWorkoutTemplateId(workoutTemplateId!),
     })
 }

@@ -31,7 +31,7 @@ export default function LastSessionCard({ session, isLoading, error }: LastSessi
     return (
         <Card href="#" >
             <div className='flex items-center -mt-4 -ml-2'>
-                <h2>{session?.workoutTemplateName}</h2>
+                <h2>{session.workoutTemplateName}</h2>
             </div>
             <div className='flex items-center -mt-6 -ml-2 text-xs sm:text-sm md:text-lg'>
                 <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds ?? 0)}</h3>

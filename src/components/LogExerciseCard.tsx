@@ -39,7 +39,7 @@ export default function LogExerciseCard() {
                 <Card key={exercise.id} className='mt-2 mb-2'>
                     <div className='flex items-center justify-between'>
                         <h2>{exercise.exerciseName}</h2>
-                        <div>{exerciseLogs ? exerciseLogs.filter(log => log.exerciseName === exercise.exerciseName).length : 1}/{exercise.defaultSets}</div>
+                        <div>{exerciseLogs.filter(log => log.exerciseName === exercise.exerciseName).length}/{exercise.defaultSets}</div>
 
                     </div>
                     <div className='flex items-center -mt-6'>
@@ -52,7 +52,7 @@ export default function LogExerciseCard() {
 
                     </div>
                     <div>
-                        <form className='flex flex-row gap-2 tems-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
+                        <form className='flex flex-row gap-2 items-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
                             <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='reps' type='number' placeholder={exercise.defaultReps ? exercise.defaultReps.toString() : '0'} />
                             <p>x</p>
                             <input className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='weightKg' type='number' placeholder={exercise.defaultWeight ? exercise.defaultWeight.toString() : '0'} />kg
