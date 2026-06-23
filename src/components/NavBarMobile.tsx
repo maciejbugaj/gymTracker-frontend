@@ -20,7 +20,7 @@ export default function NavBarMobile() {
                     <FaCalendarAlt size={20} />
                     <span className="text-sm">History</span>
                 </Button>
-                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" disabled>
+                <Button color="alternative" className="inline-flex flex-col h-full items-center justify-center px-5" onClick={() => navigate('/templates')}>
                     <IoIosCreate size={20} />
                     <span className="text-sm">Templates</span>
                 </Button>

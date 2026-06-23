@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import Session from './pages/Session'
 import NavBarMobile from './components/NavBarMobile'
+import Templates from './pages/Templates'
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/session" element={<Session />} />
+        <Route path="/templates" element={<Templates />} />
       </Routes>
     </div>
   )
