@@ -28,25 +28,37 @@ export default function HomePage() {
     return (
 
         <div className='w-full px-4 pb-16'>
-            <div className='p-4'>
+            <div className='px-4 pt-6 pb-2'>
                 <h1>GYM Tracker</h1>
-                <h3>Choose a session to start</h3>
+                <p className="text-gray-500 text-sm mt-1">Choose a session to start</p>
             </div>
             <div className='grid'>
                 <div>
                     <div className="flex">
-                        <h3>LAST SESSION</h3>
+                        <h2>Last Session</h2>
                     </div>
                 </div>
-                <LastSessionCard session={session} isLoading={isLoadingSession} error={errorSession} />
+                <LastSessionCard
+                    session={session}
+                    isLoading={isLoadingSession}
+                    error={errorSession}
+                    description={workoutTemplates?.find(t => t.id === session?.workoutTemplateId)?.description}
+                />
                 <div className="mt-2">
                     <div className="flex">
-                        <h3>START SESSION</h3>
+                        <h2>Start Session</h2>
                     </div>
                 </div>
 
                 {workoutTemplates?.map(template => (
-                    <NewSessionCard template={template} isLoading={isLoadingTemplates} error={errorTemplates} setWorkoutTemplateToStart={setWorkoutTemplateToStart} key={template.id} />
+                    <NewSessionCard
+                        key={template.id}
+                        template={template}
+                        isLoading={isLoadingTemplates}
+                        error={errorTemplates}
+                        isSelected={workoutTemplateToStart?.id === template.id}
+                        setWorkoutTemplateToStart={setWorkoutTemplateToStart}
+                    />
                 ))}
             </div>
             <div className='flex mt-4 mb-20'>

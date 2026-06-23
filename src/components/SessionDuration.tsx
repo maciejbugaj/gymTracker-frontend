@@ -22,8 +22,9 @@ export default function SessionDuration({ startedAt }: SessionDurationProps) {
     }, [startedAt])
 
     return (
-        <div>
-            Session Duration: {prettyMilliseconds(elapsedTime)}
+        <div className="px-4 pb-4 flex items-baseline gap-3">
+            <span className="timer">{prettyMilliseconds(elapsedTime, { secondsDecimalDigits: 0 })}</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">elapsed</span>
         </div>
     )
 }

@@ -38,18 +38,15 @@ export default function BreakTimer() {
         setBreakTimer(BREAK_DURATION)
     }
     return (
-        <div className='grid grid-cols-6 gap-4 mt-4'>
-            <div className='col-start-1 col-end-3 font-bold'>
-                Break Timer
+        <div className='flex items-center gap-4 px-4 py-3 border-t border-b border-gray-700/50'>
+            <div className='flex flex-col'>
+                <span className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-0.5">Break</span>
+                <span className={`timer text-2xl ${isOnBreak && breakTimer <= 10000 ? 'text-red-400' : isOnBreak ? 'text-violet-400' : ''}`}>
+                    {prettyMilliseconds(breakTimer, { secondsDecimalDigits: 0 })}
+                </span>
             </div>
-
-            <div className='col-start-1 col-end-3 '>
-                <p className='text-2xl'>{prettyMilliseconds(breakTimer)}</p>
-            </div>
-            <div className='col-end-4 col-start-5' >
-                <Button color="alternative" size="sm" onClick={onBreakStart}>Start Break </Button>
-            </div>
-            <div className='col-end-5 col-start-6 ml-6' >
+            <div className='flex gap-2 ml-auto'>
+                <Button color="alternative" size="sm" onClick={onBreakStart} disabled={isOnBreak && breakTimer > 0}>Start</Button>
                 <Button color="alternative" size="sm" onClick={onBreakReset}>Reset</Button>
             </div>
         </div>
