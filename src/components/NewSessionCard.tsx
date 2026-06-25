@@ -43,7 +43,7 @@ export default function NewSessionCard({ template, isLoading, error, isSelected 
         >
             <div className='flex items-center justify-between'>
                 <h2 className={isSelected ? 'text-violet-300' : ''}>{template.name}</h2>
-                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                     isSelected ? 'border-violet-500 bg-violet-500' : 'border-gray-500 dark:border-gray-600'
                 }`}>
                     {isSelected && (
