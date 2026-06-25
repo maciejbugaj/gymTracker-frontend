@@ -43,3 +43,31 @@ export interface StoreState {
   ongoingSession: WorkoutSession | null
   setOngoingSession: (session: WorkoutSession | null) => void
 }
+
+export interface CreateWorkoutTemplateRequest {
+  name: string
+  description?: string
+}
+
+export interface UpdateWorkoutTemplateRequest {
+  name: string
+  description?: string
+}
+
+export interface CreateTemplateExerciseRequest {
+  workoutTemplateId: number
+  exerciseName: string
+  defaultSets?: number
+  defaultReps?: number
+  defaultWeightKg?: number
+  sortOrder: number
+}
+
+export interface UpdateTemplateExerciseRequest {
+  workoutTemplateId: number
+  exerciseName: string
+  defaultSets?: number
+  defaultReps?: number
+  defaultWeightKg?: number
+  sortOrder: number
+}

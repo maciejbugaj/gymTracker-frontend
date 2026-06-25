@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GYM Tracker — Feature Prototypes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens from index.css (dark mode) ── */
+    :root {
+      --text:         #9ca3af;
+      --text-h:       #f3f4f6;
+      --bg:           #16171d;
+      --bg-card:      #1f2028;
+      --border:       #2e303a;
+      --border-card:  #374151;
+      --accent:       #c084fc;
+      --accent-bg:    rgba(192,132,252,.15);
+      --accent-border:rgba(192,132,252,.5);
+      --accent-solid: #7c3aed;
+      --accent-hover: #6d28d9;
+      --sans: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #0d0e13;
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.45;
+      letter-spacing: .18px;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Prototype layout ── */
+    .page-wrapper {
+      padding: 40px 24px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #4b5563;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* ── Phone frame ── */
+    .phone {
+      width: 390px;
+      max-width: 100%;
+      background: var(--bg);
+      border: 1px solid #2e303a;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 720px;
+      position: relative;
+    }
+
+    .phone-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 64px; /* navbar height */
+    }
+
+    /* ── Typography (matches index.css) ── */
+    h1 {
+      font-family: var(--sans);
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -.5px;
+      margin: 24px 0 4px;
+      color: var(--text-h);
+      text-wrap: balance;
+    }
+
+    h2 {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 100%;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 0;
+    }
+
+    p { margin: 0; }
+
+    /* ── Page containers ── */
+    .page-content {
+      width: 100%;
+      padding: 0 16px 16px;
+    }
+
+    .page-header {
+      padding: 24px 16px 8px;
+    }
+
+    /* ── Flowbite-style Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Exercise row card (normal state) ── */
+    .exercise-row {
+      background: #1f2028;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .exercise-row:hover { border-color: #6b7280; }
+
+    .exercise-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .exercise-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-h);
+      letter-spacing: -.1px;
+    }
+
+    .exercise-meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* Delete button */
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 18px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .btn-delete:hover { color: #f87171; background: rgba(248,113,113,.1); }
+
+    /* ── Exercise row — edit/expanded state ── */
+    .exercise-row.is-editing {
+      border-color: var(--accent-border);
+      background: rgba(192,132,252,.07);
+    }
+
+    .edit-divider {
+      border: none;
+      border-top: 1px solid #2e303a;
+      margin: 10px 0;
+    }
+
+    .edit-field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .edit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .edit-row + .edit-row { margin-top: 8px; }
+
+    /* ── Inputs (matches LogExerciseCard style) ── */
+    .input-sm {
+      width: 56px;
+      text-align: center;
+      background: #16171d;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text-h);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-sm:focus { border-color: var(--accent-border); }
+
+    .input-full {
+      width: 100%;
+      background: #16171d;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text-h);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-full:focus { border-color: var(--accent-border); }
+
+    .input-h1 {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #2e303a;
+      padding: 4px 0;
+      font-size: 24px;
+      font-weight: 600;
+      font-family: var(--sans);
+      color: var(--text-h);
+      outline: none;
+      letter-spacing: -.5px;
+    }
+    .input-h1:focus { border-bottom-color: var(--accent-border); }
+
+    .input-desc {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #2e303a;
+      padding: 4px 0;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text);
+      outline: none;
+      margin-top: 6px;
+    }
+    .input-desc:focus { border-bottom-color: var(--accent-border); }
+
+    .input-label-muted {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      padding: 7px 14px;
+      line-height: 1.4;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-alt {
+      background: #1f2028;
+      border-color: #374151;
+      color: var(--text-h);
+    }
+    .btn-alt:hover { background: #2d2f3a; border-color: #4b5563; }
+
+    .btn-violet {
+      background: var(--accent-solid);
+      border-color: var(--accent-solid);
+      color: #fff;
+    }
+    .btn-violet:hover { background: var(--accent-hover); }
+
+    .btn-red {
+      background: #7f1d1d;
+      border-color: #991b1b;
+      color: #fca5a5;
+    }
+
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-lg { padding: 10px 20px; font-size: 15px; width: 100%; }
+    .btn-full { width: 100%; }
+
+    /* ── Section spacing ── */
+    .section-gap { margin-top: 24px; }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-card);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      z-index: 50;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      border-top: 2px solid transparent;
+      transition: color .15s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover { color: #9ca3af; }
+
+    .nav-item.active {
+      color: #a78bfa;
+      border-top-color: #8b5cf6;
+      background: #111827;
+    }
+
+    .nav-icon { font-size: 18px; line-height: 1; }
+
+    /* ── Badges (set logs) ── */
+    .badge-set {
+      display: inline-flex;
+      align-items: center;
+      background: #374151;
+      color: #d1d5db;
+      border: 1px solid #4b5563;
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 2px 7px;
+      font-family: var(--mono);
+      white-space: nowrap;
+      margin: 2px;
+    }
+
+    /* ── Exercise tag pill (NewSessionCard style) ── */
+    .tag-exercise {
+      display: inline-flex;
+      background: #374151;
+      color: #d1d5db;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    /* ── History session card ── */
+    .session-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    .session-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .session-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-h);
+      letter-spacing: -.1px;
+    }
+
+    .session-date {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .session-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-h);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .stat-icon { font-size: 13px; opacity: .7; }
+
+    .expand-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      color: #7c3aed;
+      font-family: var(--sans);
+      font-weight: 500;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .expand-toggle:hover { color: #a78bfa; }
+
+    .session-exercises {
+      border-top: 1px solid #2e303a;
+      margin-top: 10px;
+      padding-top: 12px;
+    }
+
+    .ex-group { margin-bottom: 12px; }
+    .ex-group:last-child { margin-bottom: 0; }
+
+    .ex-group-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+
+    .sets-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    /* ── Top bar (back nav) ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn-back {
+      background: #1f2028;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: var(--text-h);
+      font-size: 13px;
+      font-family: var(--sans);
+      padding: 5px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .top-bar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Accent eyebrow label ── */
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ═══════════════════════════════════════
+       FEATURE 1 — EDIT TEMPLATE
+  ════════════════════════════════════════ -->
+  <div>
+    <p class="section-label">Feature 1 — Edit Template page &nbsp;·&nbsp; route: /templates/:id/edit</p>
+    <div class="phone">
+      <div class="phone-inner">
+
+        <!-- Top bar -->
+        <div class="top-bar">
+          <button class="btn-back">← Back</button>
+          <span class="top-bar-title">Edit Template</span>
+        </div>
+
+        <div class="page-content">
+
+          <!-- Template name + description (editable) -->
+          <div style="padding: 12px 0 16px;">
+            <p class="eyebrow">Template</p>
+            <input class="input-h1" type="text" value="Push Day" />
+            <input class="input-desc" type="text" value="Chest, shoulders, triceps" placeholder="Description (optional)" />
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Exercises section -->
+          <div class="section-gap">
+            <h2>Exercises</h2>
+
+            <!-- Exercise row — normal state -->
+            <div class="exercise-row">
+              <div class="exercise-row-top">
+                <span class="exercise-name">Bench Press</span>
+                <button class="btn-delete" title="Remove exercise">×</button>
+              </div>
+              <span class="exercise-meta">4 sets &nbsp;·&nbsp; 8 reps &nbsp;·&nbsp; 80 kg</span>
+            </div>
+
+            <!-- Exercise row — normal state -->
+            <div class="exercise-row">
+              <div class="exercise-row-top">
+                <span class="exercise-name">Incline Dumbbell Press</span>
+                <button class="btn-delete" title="Remove exercise">×</button>
+              </div>
+              <span class="exercise-meta">3 sets &nbsp;·&nbsp; 10 reps &nbsp;·&nbsp; 24 kg</span>
+            </div>
+
+            <!-- Exercise row — EXPANDED / EDIT state (tap to open) -->
+            <div class="exercise-row is-editing">
+              <div class="exercise-row-top">
+                <span class="exercise-name" style="color: var(--accent);">Overhead Press</span>
+                <button class="btn-delete" title="Remove exercise">×</button>
+              </div>
+              <span class="exercise-meta" style="color: #7c3aed; font-size: 11px; letter-spacing:.04em;">Tap to collapse</span>
+
+              <hr class="edit-divider" />
+
+              <!-- Editable fields -->
+              <div style="margin-bottom: 8px;">
+                <p class="edit-field-label">Exercise name</p>
+                <input class="input-full" type="text" value="Overhead Press" />
+              </div>
+
+              <div class="edit-row">
+                <div>
+                  <p class="edit-field-label">Sets</p>
+                  <input class="input-sm" type="number" value="3" />
+                </div>
+                <div>
+                  <p class="edit-field-label">Reps</p>
+                  <input class="input-sm" type="number" value="10" />
+                </div>
+                <div>
+                  <p class="edit-field-label">Weight (kg)</p>
+                  <input class="input-sm" type="number" value="50" />
+                </div>
+              </div>
+
+              <div class="edit-row" style="margin-top: 12px; justify-content: flex-end;">
+                <button class="btn btn-alt btn-sm">Cancel</button>
+                <button class="btn btn-violet btn-sm">Save</button>
+              </div>
+            </div>
+
+            <!-- Exercise row — normal state -->
+            <div class="exercise-row">
+              <div class="exercise-row-top">
+                <span class="exercise-name">Tricep Pushdown</span>
+                <button class="btn-delete" title="Remove exercise">×</button>
+              </div>
+              <span class="exercise-meta">3 sets &nbsp;·&nbsp; 12 reps &nbsp;·&nbsp; 35 kg</span>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Add Exercise section -->
+          <div>
+            <h2>Add Exercise</h2>
+
+            <div style="margin-bottom: 8px;">
+              <input class="input-full" type="text" placeholder="Exercise name, e.g. Lateral Raises…" />
+            </div>
+
+            <div class="edit-row" style="margin-bottom: 12px;">
+              <div>
+                <p class="edit-field-label">Sets</p>
+                <input class="input-sm" type="number" placeholder="3" />
+              </div>
+              <div>
+                <p class="edit-field-label">Reps</p>
+                <input class="input-sm" type="number" placeholder="10" />
+              </div>
+              <div>
+                <p class="edit-field-label">Weight (kg)</p>
+                <input class="input-sm" type="number" placeholder="20" />
+              </div>
+            </div>
+
+            <button class="btn btn-alt btn-full" style="gap:6px;">
+              <span style="font-size:16px; line-height:1;">+</span> Add Exercise
+            </button>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Save template -->
+          <button class="btn btn-violet btn-full btn-lg">Save Template</button>
+          <p style="font-size: 12px; color: #4b5563; text-align: center; margin-top: 8px;">All changes are saved to your template.</p>
+
+        </div><!-- /page-content -->
+      </div><!-- /phone-inner -->
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <a class="nav-item" href="#">
+          <span class="nav-icon">⌂</span>
+          <span>Home</span>
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">◷</span>
+          <span>Session</span>
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">◫</span>
+          <span>History</span>
+        </a>
+        <a class="nav-item active" href="#">
+          <span class="nav-icon">✎</span>
+          <span>Templates</span>
+        </a>
+      </nav>
+    </div><!-- /phone -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       FEATURE 2 — HISTORY PAGE
+  ════════════════════════════════════════ -->
+  <div>
+    <p class="section-label">Feature 2 — History page &nbsp;·&nbsp; route: /history</p>
+    <div class="phone">
+      <div class="phone-inner">
+
+        <div class="page-content">
+          <!-- Page header -->
+          <div class="page-header" style="padding-left:0; padding-right:0;">
+            <h1>History</h1>
+            <p class="text-sm" style="color: #6b7280; font-size: 14px; margin-top: 4px;">Past workout sessions</p>
+          </div>
+
+          <div>
+            <h2>Sessions</h2>
+
+            <!-- Session card — COLLAPSED -->
+            <div class="session-card">
+              <div class="session-top">
+                <div>
+                  <p class="session-name">Push Day</p>
+                  <p class="session-date">Mon, 23 Jun 2026</p>
+                </div>
+              </div>
+              <div class="session-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">⏱</span>
+                  <span class="stat-value">45</span>
+                  <span style="font-size:12px;">min</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">⚖</span>
+                  <span class="stat-value">2,480</span>
+                  <span style="font-size:12px;">kg total</span>
+                </div>
+              </div>
+              <button class="expand-toggle">▾ Show exercises</button>
+            </div>
+
+            <!-- Session card — EXPANDED -->
+            <div class="session-card">
+              <div class="session-top">
+                <div>
+                  <p class="session-name">Leg Day</p>
+                  <p class="session-date">Sat, 21 Jun 2026</p>
+                </div>
+              </div>
+              <div class="session-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">⏱</span>
+                  <span class="stat-value">52</span>
+                  <span style="font-size:12px;">min</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">⚖</span>
+                  <span class="stat-value">3,200</span>
+                  <span style="font-size:12px;">kg total</span>
+                </div>
+              </div>
+              <button class="expand-toggle">▴ Hide exercises</button>
+
+              <!-- Expanded exercise logs -->
+              <div class="session-exercises">
+
+                <div class="ex-group">
+                  <p class="ex-group-name">Squat</p>
+                  <div class="sets-row">
+                    <span class="badge-set">Set 1: 6 × 100kg</span>
+                    <span class="badge-set">Set 2: 6 × 102.5kg</span>
+                    <span class="badge-set">Set 3: 5 × 105kg</span>
+                    <span class="badge-set">Set 4: 5 × 105kg</span>
+                  </div>
+                </div>
+
+                <div class="ex-group">
+                  <p class="ex-group-name">Romanian Deadlift</p>
+                  <div class="sets-row">
+                    <span class="badge-set">Set 1: 8 × 80kg</span>
+                    <span class="badge-set">Set 2: 8 × 85kg</span>
+                    <span class="badge-set">Set 3: 7 × 85kg</span>
+                  </div>
+                </div>
+
+                <div class="ex-group">
+                  <p class="ex-group-name">Leg Press</p>
+                  <div class="sets-row">
+                    <span class="badge-set">Set 1: 12 × 120kg</span>
+                    <span class="badge-set">Set 2: 12 × 120kg</span>
+                    <span class="badge-set">Set 3: 10 × 130kg</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Session card — COLLAPSED -->
+            <div class="session-card">
+              <div class="session-top">
+                <div>
+                  <p class="session-name">Push Day</p>
+                  <p class="session-date">Wed, 18 Jun 2026</p>
+                </div>
+              </div>
+              <div class="session-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">⏱</span>
+                  <span class="stat-value">38</span>
+                  <span style="font-size:12px;">min</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">⚖</span>
+                  <span class="stat-value">2,100</span>
+                  <span style="font-size:12px;">kg total</span>
+                </div>
+              </div>
+              <button class="expand-toggle">▾ Show exercises</button>
+            </div>
+
+            <!-- Session card — COLLAPSED -->
+            <div class="session-card">
+              <div class="session-top">
+                <div>
+                  <p class="session-name">Leg Day</p>
+                  <p class="session-date">Sun, 15 Jun 2026</p>
+                </div>
+              </div>
+              <div class="session-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">⏱</span>
+                  <span class="stat-value">48</span>
+                  <span style="font-size:12px;">min</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">⚖</span>
+                  <span class="stat-value">2,960</span>
+                  <span style="font-size:12px;">kg total</span>
+                </div>
+              </div>
+              <button class="expand-toggle">▾ Show exercises</button>
+            </div>
+
+          </div><!-- /sessions list -->
+        </div><!-- /page-content -->
+      </div><!-- /phone-inner -->
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <a class="nav-item" href="#">
+          <span class="nav-icon">⌂</span>
+          <span>Home</span>
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">◷</span>
+          <span>Session</span>
+        </a>
+        <a class="nav-item active" href="#">
+          <span class="nav-icon">◫</span>
+          <span>History</span>
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">✎</span>
+          <span>Templates</span>
+        </a>
+      </nav>
+    </div><!-- /phone -->
+  </div>
+
+</div><!-- /page-wrapper -->
+</body>
+</html>

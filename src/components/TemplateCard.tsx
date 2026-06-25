@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card } from "flowbite-react";
 import type { WorkoutTemplate } from "../types";
+import { useDeleteWorkoutTemplate } from "../hooks/useWorkoutTemplates";
 
 interface TemplateCardProps {
     template: WorkoutTemplate | undefined
@@ -10,6 +12,8 @@ interface TemplateCardProps {
 
 export default function TemplateCard({ template, isLoading, error }: TemplateCardProps) {
     const [confirmDelete, setConfirmDelete] = useState(false)
+    const navigate = useNavigate()
+    const deleteTemplate = useDeleteWorkoutTemplate()
 
     if (isLoading) {
         return <Card>
@@ -41,12 +45,12 @@ export default function TemplateCard({ template, isLoading, error }: TemplateCar
                 <div className="flex-shrink-0">
                     {!confirmDelete ? (
                         <div className="flex gap-2">
-                            <Button color="alternative" size="sm" onClick={() => { }}>Edit</Button>
+                            <Button color="alternative" size="sm" onClick={() => navigate(`/templates/${template.id}/edit`)}>Edit</Button>
                             <Button color="red" size="sm" onClick={() => setConfirmDelete(true)}>Delete</Button>
                         </div>
                     ) : (
                         <div className="flex gap-2">
-                            <Button color="red" size="sm" onClick={() => { }}>Confirm Delete</Button>
+                            <Button color="red" size="sm" isProcessing={deleteTemplate.isPending} onClick={() => deleteTemplate.mutate(template.id)}>Confirm Delete</Button>
                             <Button color="alternative" size="sm" onClick={() => setConfirmDelete(false)}>Cancel</Button>
                         </div>
                     )}

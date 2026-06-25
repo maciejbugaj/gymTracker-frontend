@@ -19,10 +19,10 @@ export default function NavBarMobile() {
                     <FaClock size={18} aria-hidden="true" />
                     <span>Session</span>
                 </Link>
-                <button disabled className={`${baseClass} bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed border-t-2 border-transparent`}>
+                <Link to="/history" className={`${baseClass} ${pathname === '/history' ? activeClass : inactiveClass}`}>
                     <FaCalendarAlt size={18} aria-hidden="true" />
                     <span>History</span>
-                </button>
+                </Link>
                 <Link to="/templates" className={`${baseClass} ${pathname === '/templates' ? activeClass : inactiveClass}`}>
                     <IoIosCreate size={18} aria-hidden="true" />
                     <span>Templates</span>
