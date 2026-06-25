@@ -50,7 +50,7 @@ export default function TemplateCard({ template, isLoading, error }: TemplateCar
                         </div>
                     ) : (
                         <div className="flex gap-2">
-                            <Button color="red" size="sm" isProcessing={deleteTemplate.isPending} onClick={() => deleteTemplate.mutate(template.id)}>Confirm Delete</Button>
+                            <Button color="red" size="sm" disabled={deleteTemplate.isPending} onClick={() => deleteTemplate.mutate(template.id)}>Confirm Delete</Button>
                             <Button color="alternative" size="sm" onClick={() => setConfirmDelete(false)}>Cancel</Button>
                         </div>
                     )}

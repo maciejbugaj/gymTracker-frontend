@@ -176,7 +176,7 @@ function EditTemplateForm({ template }: { template: WorkoutTemplate }) {
                                             size="xs"
                                             color="purple"
                                             onClick={() => handleSaveExercise(exercise)}
-                                            isProcessing={updateExercise.isPending}
+                                            disabled={updateExercise.isPending}
                                         >
                                             Save
                                         </Button>
@@ -258,8 +258,7 @@ function EditTemplateForm({ template }: { template: WorkoutTemplate }) {
                     size="sm"
                     color="purple"
                     onClick={handleAddExercise}
-                    disabled={!addForm.exerciseName.trim()}
-                    isProcessing={createExercise.isPending}
+                    disabled={!addForm.exerciseName.trim() || createExercise.isPending}
                     className="w-full"
                 >
                     + Add Exercise
@@ -270,8 +269,7 @@ function EditTemplateForm({ template }: { template: WorkoutTemplate }) {
             <Button
                 color="purple"
                 onClick={handleSaveTemplate}
-                disabled={!templateName.trim()}
-                isProcessing={updateTemplate.isPending}
+                disabled={!templateName.trim() || updateTemplate.isPending}
                 className="w-full"
             >
                 Save Template

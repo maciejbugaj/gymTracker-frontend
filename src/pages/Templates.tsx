@@ -58,8 +58,7 @@ export default function Templates() {
                             size="sm"
                             color="purple"
                             onClick={handleCreate}
-                            disabled={!name.trim()}
-                            isProcessing={createTemplate.isPending}
+                            disabled={!name.trim() || createTemplate.isPending}
                             className="w-full"
                         >
                             Create &amp; Add Exercises
