@@ -2,6 +2,8 @@
 
 A mobile-first React app for tracking gym workouts in real time. Pick a template, start a session, log your sets with weights and reps, and review your history.
 
+**[Live demo →](https://gymtracker-frontend-production.up.railway.app/)**
+
 ## Screenshots
 
 | Home | Templates | Edit Template |
