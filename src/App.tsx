@@ -5,8 +5,23 @@ import NavBarMobile from './components/NavBarMobile'
 import Templates from './pages/Templates'
 import EditTemplate from './pages/EditTemplate'
 import History from './pages/History'
+import { useEffect } from 'react'
+import { useAuth } from 'react-oidc-context'
+import { useSyncAuthState } from './hooks/useSyncAuthState'
 
 export default function App() {
+  const { isLoading, isAuthenticated, signinRedirect } = useAuth()
+  useSyncAuthState()
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      signinRedirect()
+    }
+  }, [isLoading, isAuthenticated, signinRedirect])
+
+  if (isLoading || !isAuthenticated) {
+    return <div className="flex h-screen items-center justify-center text-gray-500">Ładowanie…</div>
+  }
   return (
     <div>
       <NavBarMobile />

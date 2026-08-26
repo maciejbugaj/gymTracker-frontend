@@ -71,3 +71,9 @@ export interface UpdateTemplateExerciseRequest {
   defaultWeightKg?: number
   sortOrder: number
 }
+
+export interface AuthState {
+  accessToken: string | null
+  isAuthenticated: boolean
+  setAuth: (token: string | null, isAuthenticated: boolean) => void
+}
