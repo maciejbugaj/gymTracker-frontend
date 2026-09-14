@@ -49,9 +49,22 @@ export interface ExerciseLog {
   loggedAt?: string
 }
 
+// The backend renumbers every listed set to 1..n in this exact order, so logIds must contain
+// every saved set of that exercise in the session.
+export interface ReorderExerciseSetsRequest {
+  workoutSessionId: number
+  exerciseName: string
+  logIds: number[]
+}
+
 export interface StoreState {
   ongoingSession: WorkoutSession | null
   setOngoingSession: (session: WorkoutSession | null) => void
+  // How many set rows the table shows per exercise, keyed by `${sessionId}:${exerciseName}`.
+  // Only what the user changed by hand lives here — the default row count is derived from the
+  // plan and the previous session on every render.
+  setRowCounts: Record<string, number>
+  setRowCount: (sessionId: number, exerciseName: string, rowCount: number) => void
 }
 
 export interface CreateWorkoutTemplateRequest {

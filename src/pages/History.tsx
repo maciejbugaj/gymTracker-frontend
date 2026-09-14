@@ -29,13 +29,13 @@ function SessionCard({ session }: { session: WorkoutSession }) {
 
     return (
         <Card className="mb-3">
-            <div className="flex justify-between items-start gap-2">
+            <div className="flex justify-between items-start gap-2 text-left">
                 <div>
-                    <h2 className="text-base font-semibold">{session.workoutTemplateName}</h2>
+                    <h2 className="text-base font-semibold">{session.workoutTemplateName ?? session.dayName}</h2>
                     <p className="text-xs text-gray-500">{formatSessionDate(session.startedAt)}</p>
                 </div>
             </div>
-            <div className="flex gap-4 text-xs text-gray-400 mt-1">
+            <div className="flex gap-4 text-xs text-gray-400 mt-1 text-left">
                 {session.durationSeconds != null && (
                     <span>⏱ {formatDurationMinutes(session.durationSeconds)}</span>
                 )}
@@ -52,7 +52,7 @@ function SessionCard({ session }: { session: WorkoutSession }) {
                 </button>
             )}
             {expanded && (
-                <div className="mt-3 flex flex-col gap-3">
+                <div className="mt-3 flex flex-col gap-3 text-left">
                     {Array.from(exerciseGroups.entries()).map(([name, sets]) => (
                         <div key={name}>
                             <p className="text-xs font-semibold text-gray-300 mb-1">{name}</p>
