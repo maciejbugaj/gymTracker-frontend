@@ -109,6 +109,12 @@ export default function AiPlanPreview() {
                 <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">AI Coach</p>
                 <h1>{draft.name}</h1>
                 {draft.description && <p className="text-gray-500 text-sm mt-1">{draft.description}</p>}
+                {(generation.inputTokens != null || generation.outputTokens != null) && (
+                    <p className="text-xs text-gray-600 mt-1">
+                        {(generation.inputTokens ?? 0) + (generation.outputTokens ?? 0)} tokens
+                        ({generation.inputTokens ?? 0} in / {generation.outputTokens ?? 0} out)
+                    </p>
+                )}
             </div>
 
             {draft.coachNotes && (
