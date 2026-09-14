@@ -25,3 +25,7 @@ export const endSession = async (sessionId: number): Promise<WorkoutSession> => 
     const { data } = await client.post(`/workout-sessions/${sessionId}/finish`)
     return data
 }
+/** Throws away an ongoing session together with everything logged in it. */
+export const discardSession = async (sessionId: number): Promise<void> => {
+    await client.delete(`/workout-sessions/${sessionId}`)
+}

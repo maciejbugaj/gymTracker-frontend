@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { WorkoutTemplate } from '../types';
 import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
+import OngoingSessionCard from '../components/OngoingSessionCard';
 
 export default function HomePage() {
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
@@ -41,6 +42,8 @@ export default function HomePage() {
                 <h1>GYM Tracker</h1>
                 <p className="text-gray-500 text-sm mt-1">Choose a session to start</p>
             </div>
+
+            {ongoingSession && <OngoingSessionCard session={ongoingSession} />}
 
             {activeProgram && (
                 <Link to={`/programs/${activeProgram.program.id}`} className="block rounded-xl bg-gray-800 border border-violet-500/30 p-4 mx-2 mb-4 hover:bg-gray-700 transition-colors">
@@ -97,7 +100,7 @@ export default function HomePage() {
             </div>
             <div className='flex mt-4 mb-20'>
                 {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-sm sm:text-xl text-gray-500'>Select a session to start</p>}
-                {ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Please finish the ongoing session before starting a new one.</p>}
+                {ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Finish or discard the ongoing session before starting a new one.</p>}
                 {workoutTemplateToStart && !ongoingSession && <Button className='w-full text-xl' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
             </div>
         </div>

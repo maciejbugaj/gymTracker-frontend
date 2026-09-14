@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getSessions, getLastSession, createSession, endSession, getLastOngoingSession } from '../api/sessions'
+import { getSessions, getLastSession, createSession, endSession, getLastOngoingSession, discardSession } from '../api/sessions'
 import { useStore } from '../stores/StoreSession'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
@@ -41,6 +41,23 @@ export const useCreateSession = () => {
         },
         onError: (error) => {
             console.error('Error creating session', error)
+        }
+    })
+}
+
+/** Deletes a session the user never meant to start, so the home screen is free again. */
+export const useDiscardSession = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (sessionId: number) => discardSession(sessionId),
+        onSuccess: () => {
+            queryClient.setQueryData(['lastOngoingSession'], null)
+            useStore.getState().setOngoingSession(null)
+            queryClient.invalidateQueries({ queryKey: ['sessions'] })
+            queryClient.invalidateQueries({ queryKey: ['lastSession'] })
+        },
+        onError: (error) => {
+            console.error('Error discarding session', error)
         }
     })
 }

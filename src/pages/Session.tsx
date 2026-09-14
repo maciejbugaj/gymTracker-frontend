@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BreakTimer from '../components/BreakTimer';
 import { Button } from 'flowbite-react';
 import SessionDuration from '../components/SessionDuration';
-import { useFinishSession } from '../hooks/useSessions';
+import { useDiscardSession, useFinishSession } from '../hooks/useSessions';
 import LogExerciseCard from '../components/LogExerciseCard';
 import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
 import { useStore } from '../stores/StoreSession';
@@ -20,7 +20,10 @@ export default function Session() {
     const startedAt = useStore((state) => state.ongoingSession?.startedAt)
     const sessionTitle = dayName ?? workoutTemplateName
     const { mutate: finishSession } = useFinishSession()
+    const { mutate: discardSession, isPending: isDiscarding } = useDiscardSession()
     const [confirmFinish, setConfirmFinish] = useState(false)
+    const [confirmDiscard, setConfirmDiscard] = useState(false)
+    const navigate = useNavigate()
 
 
     function handleFinishSession() {
@@ -29,6 +32,14 @@ export default function Session() {
             return
         }
         finishSession(sessionId)
+    }
+
+    function handleDiscardSession() {
+        if (!sessionId) {
+            console.error('No session to discard')
+            return
+        }
+        discardSession(sessionId, { onSuccess: () => navigate('/') })
     }
 
     useSyncOngoingSession();
@@ -65,14 +76,31 @@ export default function Session() {
                     </div>
                 </div>
                 <LogExerciseCard />
-                <div className='flex gap-2 mt-4 mb-20'>
-                    {!confirmFinish ? (
-                        <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmFinish(true)}>Finish Session</Button>
-                    ) : (
-                        <>
+                <div className='mt-4 mb-20'>
+                    {confirmFinish && (
+                        <div className='flex gap-2'>
                             <Button className='w-full' color='failure' size='lg' onClick={handleFinishSession}>Confirm Finish</Button>
                             <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmFinish(false)}>Cancel</Button>
+                        </div>
+                    )}
+                    {confirmDiscard && (
+                        <>
+                            <p className='text-xs text-gray-400 mb-2 text-left'>
+                                Discarding deletes this session and every set logged in it. This cannot be undone.
+                            </p>
+                            <div className='flex gap-2'>
+                                <Button className='w-full' color='failure' size='lg' disabled={isDiscarding} onClick={handleDiscardSession}>
+                                    {isDiscarding ? 'Discarding…' : 'Confirm Discard'}
+                                </Button>
+                                <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmDiscard(false)}>Keep</Button>
+                            </div>
                         </>
+                    )}
+                    {!confirmFinish && !confirmDiscard && (
+                        <div className='flex gap-2'>
+                            <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmFinish(true)}>Finish Session</Button>
+                            <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmDiscard(true)}>Discard</Button>
+                        </div>
                     )}
                 </div>
             </div>

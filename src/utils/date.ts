@@ -16,3 +16,9 @@ export const formatDuration = (seconds: number): string => {
     if (m > 0) return `${m}m ${s}s`
     return `${s}s`
 }
+export const formatSessionTime = (timestamp: string): string => {
+    return new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(timestamp))
+}
