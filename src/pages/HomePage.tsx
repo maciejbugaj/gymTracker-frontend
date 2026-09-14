@@ -2,8 +2,10 @@ import { useCreateSession, useLastOngoingSession, useLastSession } from '../hook
 import LastSessionCard from '../components/LastSessionCard';
 import NewSessionCard from '../components/NewSessionCard';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
+import { useActiveProgram } from '../hooks/useTrainingPrograms';
 import { Button } from 'flowbite-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { WorkoutTemplate } from '../types';
 import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
 
@@ -11,6 +13,7 @@ export default function HomePage() {
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
     const { data: ongoingSession } = useLastOngoingSession()
     const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
+    const { data: activeProgram } = useActiveProgram()
     const { mutate: createSession } = useCreateSession()
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
 
@@ -22,7 +25,13 @@ export default function HomePage() {
             })
         }
     }
-    
+
+    const startProgramDay = () => {
+        if (activeProgram?.nextDay) {
+            createSession({ programDayId: activeProgram.nextDay.programDayId })
+        }
+    }
+
     useSyncOngoingSession();
 
     return (
@@ -32,6 +41,31 @@ export default function HomePage() {
                 <h1>GYM Tracker</h1>
                 <p className="text-gray-500 text-sm mt-1">Choose a session to start</p>
             </div>
+
+            {activeProgram && (
+                <Link to={`/programs/${activeProgram.program.id}`} className="block rounded-xl bg-gray-800 border border-violet-500/30 p-4 mx-2 mb-4 hover:bg-gray-700 transition-colors">
+                    <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">Active Program</p>
+                    <p className="text-sm font-medium text-gray-100 mb-2">{activeProgram.program.name}</p>
+                    {activeProgram.nextDay ? (
+                        <>
+                            <p className="text-xs text-gray-400 mb-3">
+                                Next: Week {activeProgram.nextDay.weekNumber} · Day {activeProgram.nextDay.dayNumber}
+                                {activeProgram.nextDay.dayName ? ` (${activeProgram.nextDay.dayName})` : ''}
+                            </p>
+                            <Button
+                                color="purple" size="sm" className="w-full"
+                                onClick={(e) => { e.preventDefault(); startProgramDay() }}
+                                disabled={!!ongoingSession}
+                            >
+                                Start
+                            </Button>
+                        </>
+                    ) : (
+                        <p className="text-xs text-gray-400">All days completed 🎉</p>
+                    )}
+                </Link>
+            )}
+
             <div className='grid'>
                 <div>
                     <div className="flex">

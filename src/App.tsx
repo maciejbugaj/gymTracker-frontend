@@ -5,6 +5,10 @@ import NavBarMobile from './components/NavBarMobile'
 import Templates from './pages/Templates'
 import EditTemplate from './pages/EditTemplate'
 import History from './pages/History'
+import AiPlanGenerator from './pages/AiPlanGenerator'
+import AiPlanPreview from './pages/AiPlanPreview'
+import Programs from './pages/Programs'
+import ProgramDetail from './pages/ProgramDetail'
 import { useEffect } from 'react'
 import { useAuth } from 'react-oidc-context'
 import { useSyncAuthState } from './hooks/useSyncAuthState'
@@ -32,6 +36,10 @@ export default function App() {
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/:id/edit" element={<EditTemplate />} />
         <Route path="/history" element={<History />} />
+        <Route path="/ai-plan" element={<AiPlanGenerator />} />
+        <Route path="/ai-plans/:generationId" element={<AiPlanPreview />} />
+        <Route path="/programs" element={<Programs />} />
+        <Route path="/programs/:id" element={<ProgramDetail />} />
       </Routes>
     </div>
   )

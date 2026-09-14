@@ -2,17 +2,44 @@ import { useStore } from '../stores/StoreSession'
 import { Badge, Button, Card } from 'flowbite-react';
 import type { ExerciseLog } from '../types';
 import { useWorkoutTemplateById } from '../hooks/useWorkoutTemplates';
-import { useGetExerciseLogsByWorkoutTemplateId, useLogExerciseSet } from '../hooks/useExerciseLog';
+import { useGetExerciseLogsByProgramDayId, useGetExerciseLogsByWorkoutTemplateId, useLogExerciseSet } from '../hooks/useExerciseLog';
 
+type ExerciseTarget = {
+    key: number
+    exerciseName: string
+    setsTarget?: number
+    repsPlaceholder: string
+}
 
 export default function LogExerciseCard() {
 
     const exerciseLogs = useStore((state) => state.ongoingSession?.exerciseLogs) ?? []
     const sessionId = useStore((state) => state.ongoingSession?.id)
     const workoutTemplateId = useStore((state) => state.ongoingSession?.workoutTemplateId)
-    const { data: previousExerciseLogs } = useGetExerciseLogsByWorkoutTemplateId(workoutTemplateId)
+    const programDayId = useStore((state) => state.ongoingSession?.programDayId)
+    const prescribedExercises = useStore((state) => state.ongoingSession?.prescribedExercises)
+    const { data: previousFromTemplate } = useGetExerciseLogsByWorkoutTemplateId(workoutTemplateId)
+    const { data: previousFromProgram } = useGetExerciseLogsByProgramDayId(programDayId)
     const { mutate: logExerciseSet } = useLogExerciseSet()
     const { data: workoutTemplate } = useWorkoutTemplateById(workoutTemplateId)
+
+    const previousExerciseLogs = programDayId ? previousFromProgram : previousFromTemplate
+
+    // Same list either way — just sourced from the program day's prescription (sets ×
+    // rep range) instead of the template's defaults (single set/rep numbers).
+    const exercisesToLog: ExerciseTarget[] = programDayId
+        ? (prescribedExercises ?? []).map(exercise => ({
+            key: exercise.id,
+            exerciseName: exercise.exerciseName,
+            setsTarget: exercise.targetSets,
+            repsPlaceholder: `${exercise.targetRepsMin}-${exercise.targetRepsMax}`,
+        }))
+        : (workoutTemplate?.exercises ?? []).map(exercise => ({
+            key: exercise.id,
+            exerciseName: exercise.exerciseName,
+            setsTarget: exercise.defaultSets,
+            repsPlaceholder: exercise.defaultReps ? String(exercise.defaultReps) : '8',
+        }))
 
     function handleLogSet(event: React.SubmitEvent<HTMLFormElement>, exerciseName: string) {
         event.preventDefault()
@@ -35,13 +62,13 @@ export default function LogExerciseCard() {
 
     return (
         <>
-            {workoutTemplate?.exercises.map(exercise => (
-                <Card key={exercise.id} className='mt-2 mb-2'>
+            {exercisesToLog.map(exercise => (
+                <Card key={exercise.key} className='mt-2 mb-2'>
                     <div className='flex items-center justify-between'>
                         <h2 className="text-base font-semibold text-gray-100 tracking-tight normal-case">{exercise.exerciseName}</h2>
                         <span className="stat-number text-sm text-violet-400">
                             {exerciseLogs.filter(log => log.exerciseName === exercise.exerciseName).length}
-                            <span className="text-gray-600">/{exercise.defaultSets}</span>
+                            <span className="text-gray-600">/{exercise.setsTarget}</span>
                         </span>
                     </div>
                     <div className='flex items-center gap-2'>
@@ -54,11 +81,11 @@ export default function LogExerciseCard() {
                     </div>
                     <div>
                         <form className='flex flex-row gap-2 items-center' onSubmit={(event) => handleLogSet(event, exercise.exerciseName)}>
-                            <label htmlFor={`reps-${exercise.id}`} className="sr-only">Reps</label>
-                            <input id={`reps-${exercise.id}`} className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='reps' type='number' inputMode="numeric" placeholder={exercise.defaultReps ? `e.g. ${exercise.defaultReps}…` : 'e.g. 8…'} />
+                            <label htmlFor={`reps-${exercise.key}`} className="sr-only">Reps</label>
+                            <input id={`reps-${exercise.key}`} className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='reps' type='number' inputMode="numeric" placeholder={`e.g. ${exercise.repsPlaceholder}…`} />
                             <p>x</p>
-                            <label htmlFor={`weightKg-${exercise.id}`} className="sr-only">Weight (kg)</label>
-                            <input id={`weightKg-${exercise.id}`} className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='weightKg' type='number' inputMode="decimal" placeholder={exercise.defaultWeight ? `e.g. ${exercise.defaultWeight}…` : 'e.g. 60…'} />kg
+                            <label htmlFor={`weightKg-${exercise.key}`} className="sr-only">Weight (kg)</label>
+                            <input id={`weightKg-${exercise.key}`} className="w-14 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm" name='weightKg' type='number' inputMode="decimal" placeholder='e.g. 60…' />kg
                             <Button type='submit' color="alternative" size="sm">Log Set</Button>
                         </form>
                     </div>

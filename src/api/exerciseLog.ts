@@ -10,3 +10,8 @@ export const getPreviousExerciseLogsByWorkoutTemplateId = async (workoutTemplate
     const { data } = await client.get(`/exercise-logs/previous?workoutTemplateId=${workoutTemplateId}`)
     return data;
 }
+
+export const getPreviousExerciseLogsByProgramDayId = async (programDayId: number): Promise<ExerciseLog[]> => {
+    const { data } = await client.get(`/exercise-logs/previous?programDayId=${programDayId}`)
+    return data;
+}

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getPreviousExerciseLogsByWorkoutTemplateId, logExerciseSet } from "../api/exerciseLog"
+import { getPreviousExerciseLogsByProgramDayId, getPreviousExerciseLogsByWorkoutTemplateId, logExerciseSet } from "../api/exerciseLog"
 import type { ExerciseLog } from "../types"
 import { sessionStore } from '../stores/StoreSession'
 
@@ -23,5 +23,13 @@ export const useGetExerciseLogsByWorkoutTemplateId = (workoutTemplateId: number 
         queryKey: ['exerciseLogsByWorkoutTemplateId', workoutTemplateId],
         enabled: !!workoutTemplateId,
         queryFn: () => getPreviousExerciseLogsByWorkoutTemplateId(workoutTemplateId!),
+    })
+}
+
+export const useGetExerciseLogsByProgramDayId = (programDayId: number | undefined) => {
+    return useQuery({
+        queryKey: ['exerciseLogsByProgramDayId', programDayId],
+        enabled: !!programDayId,
+        queryFn: () => getPreviousExerciseLogsByProgramDayId(programDayId!),
     })
 }
