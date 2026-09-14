@@ -13,7 +13,12 @@ import { useStore } from '../stores/StoreSession';
 export default function Session() {
     const sessionId = useStore((state) => state.ongoingSession?.id)
     const workoutTemplateName = useStore((state) => state.ongoingSession?.workoutTemplateName)
+    const programName = useStore((state) => state.ongoingSession?.programName)
+    const dayName = useStore((state) => state.ongoingSession?.dayName)
+    const weekNumber = useStore((state) => state.ongoingSession?.weekNumber)
+    const isDeload = useStore((state) => state.ongoingSession?.isDeload)
     const startedAt = useStore((state) => state.ongoingSession?.startedAt)
+    const sessionTitle = dayName ?? workoutTemplateName
     const { mutate: finishSession } = useFinishSession()
     const [confirmFinish, setConfirmFinish] = useState(false)
 
@@ -44,7 +49,12 @@ export default function Session() {
         <div className='w-full px-4'>
             <div className='px-4 pt-6 pb-2'>
                 <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">Active Session</p>
-                <h1>{workoutTemplateName}</h1>
+                <h1>{sessionTitle}</h1>
+                {programName && (
+                    <p className="text-gray-500 text-sm mt-1">
+                        {programName} · Week {weekNumber}{isDeload ? ' · Deload' : ''}
+                    </p>
+                )}
             </div>
             <SessionDuration startedAt={startedAt} />
             <BreakTimer />

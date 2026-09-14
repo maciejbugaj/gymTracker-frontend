@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaClock, FaCalendarAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaClock, FaCalendarAlt, FaSignOutAlt, FaMagic } from "react-icons/fa";
 import { IoIosCreate } from "react-icons/io";
 import { useAuth } from "react-oidc-context";
 
@@ -24,7 +24,7 @@ export default function NavBarMobile() {
             </div>
 
             <div className="fixed bottom-0 left-0 z-50 w-full h-16 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <div className="grid h-full grid-cols-4 mx-auto">
+                <div className="grid h-full grid-cols-5 mx-auto">
                     <Link to="/" className={`${baseClass} ${pathname === '/' ? activeClass : inactiveClass}`}>
                         <FaHome size={18} aria-hidden="true" />
                         <span>Home</span>
@@ -40,6 +40,10 @@ export default function NavBarMobile() {
                     <Link to="/templates" className={`${baseClass} ${pathname === '/templates' ? activeClass : inactiveClass}`}>
                         <IoIosCreate size={18} aria-hidden="true" />
                         <span>Templates</span>
+                    </Link>
+                    <Link to="/programs" className={`${baseClass} ${pathname.startsWith('/programs') || pathname.startsWith('/ai-plan') ? activeClass : inactiveClass}`}>
+                        <FaMagic size={18} aria-hidden="true" />
+                        <span>Plan AI</span>
                     </Link>
                 </div>
             </div>
