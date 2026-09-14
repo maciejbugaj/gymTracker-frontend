@@ -1,4 +1,3 @@
-import { Card } from "flowbite-react";
 import type { WorkoutSession } from "../types";
 import { formatDuration, formatSessionDate } from "../utils/date";
 
@@ -11,48 +10,55 @@ interface LastSessionCardProps {
 
 export default function LastSessionCard({ session, isLoading, error, description }: LastSessionCardProps) {
     if (isLoading) {
-        return <Card>
-            <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
-                <span className="sr-only">Loading…</span>
+        return (
+            <div className="h-[72px] animate-pulse bg-platform-800">
+                <span className="sr-only">Loading your last session…</span>
             </div>
-        </Card>
+        )
     }
 
     if (error) {
-        return <Card>
-            <div role="alert" className="text-red-500">Error loading last session</div>
-        </Card>
+        return (
+            <div role="alert" className="bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                Your last session didn't load. Try again in a moment.
+            </div>
+        )
     }
 
     if (!session) {
-        return <Card>
-            <p className="text-sm text-gray-400">No sessions yet - start your first one below.</p>
-        </Card>
+        return (
+            <div className="bg-platform-800 px-4 py-3 text-[13px] text-steel">
+                Nothing logged yet. Pick a session below and start your first one.
+            </div>
+        )
     }
 
-    const totalSets = session.exerciseLogs?.length ?? 0
+    const logs = session.exerciseLogs ?? []
+    const totalSets = logs.length
+    const tonnage = logs.reduce((sum, log) => sum + (log.reps ?? 0) * (log.weightKg ?? 0), 0)
 
     return (
-        <Card>
-            <div className="text-left">
-                <h2 className="text-base font-semibold text-gray-100 tracking-tight normal-case mb-1">
-                    {session.workoutTemplateName ?? session.dayName}
-                </h2>
-                {description && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{description}</p>
+        <div className="bg-platform-800 px-4 py-3">
+            <p className="font-condensed text-[16px] font-semibold leading-tight">
+                {session.workoutTemplateName ?? session.dayName}
+            </p>
+            {description && <p className="mt-0.5 text-[11.5px] text-steel">{description}</p>}
+            <p className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11.5px] text-steel">
+                <span>{formatSessionDate(session.startedAt)}</span>
+                <span>
+                    <span className="font-medium text-chalk-dim">{formatDuration(session.durationSeconds ?? 0)}</span>
+                </span>
+                {totalSets > 0 && (
+                    <span>
+                        <span className="font-medium text-chalk-dim">{totalSets}</span> {totalSets === 1 ? 'set' : 'sets'}
+                    </span>
                 )}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
-                    <span>{formatSessionDate(session.startedAt)}</span>
-                    <span aria-hidden="true" className="text-gray-600">·</span>
-                    <span>⏱ {formatDuration(session.durationSeconds ?? 0)}</span>
-                    {totalSets > 0 && (
-                        <>
-                            <span aria-hidden="true" className="text-gray-600">·</span>
-                            <span>🏋 {totalSets} {totalSets === 1 ? 'set' : 'sets'}</span>
-                        </>
-                    )}
-                </div>
-            </div>
-        </Card>
+                {tonnage > 0 && (
+                    <span>
+                        <span className="font-medium text-chalk-dim">{tonnage.toLocaleString()}</span> kg total
+                    </span>
+                )}
+            </p>
+        </div>
     )
 }

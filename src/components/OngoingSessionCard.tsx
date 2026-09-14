@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Button } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import type { WorkoutSession } from '../types'
 import { useDiscardSession } from '../hooks/useSessions'
 import { formatSessionTime } from '../utils/date'
+import Button from './ui/Button'
+import { buttonClass } from './ui/buttonClass'
 
 interface OngoingSessionCardProps {
     session: WorkoutSession
@@ -16,35 +17,38 @@ export default function OngoingSessionCard({ session }: OngoingSessionCardProps)
     const loggedSets = session.exerciseLogs?.length ?? 0
 
     return (
-        <div className="rounded-xl bg-gray-800 border border-violet-500/30 p-4 mx-2 mb-4 text-left">
-            <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">Session in progress</p>
-            <p className="text-sm font-medium text-gray-100">{session.dayName ?? session.workoutTemplateName}</p>
-            <p className="text-xs text-gray-400 mt-1">
-                Started {formatSessionTime(session.startedAt)}
-                {loggedSets > 0 ? ` · ${loggedSets} ${loggedSets === 1 ? 'set' : 'sets'} logged` : ' · nothing logged yet'}
+        <div className="border-l-[3px] border-accent bg-platform-800 px-4 py-3">
+            <p className="font-condensed text-[16px] font-semibold leading-tight">
+                {session.dayName ?? session.workoutTemplateName} — in progress
+            </p>
+            <p className="mt-1 text-[11.5px] text-steel">
+                Started <span className="font-medium text-chalk-dim">{formatSessionTime(session.startedAt)}</span>
+                {loggedSets > 0
+                    ? <> · <span className="font-medium text-chalk-dim">{loggedSets}</span> {loggedSets === 1 ? 'set' : 'sets'} logged</>
+                    : ' · nothing logged yet'}
             </p>
 
             {!confirmDiscard ? (
-                <div className="flex gap-2 mt-3">
-                    <Button as={Link} to="/session" color="purple" size="sm" className="w-full">Resume</Button>
-                    <Button color="alternative" size="sm" className="w-full" onClick={() => setConfirmDiscard(true)}>
+                <div className="mt-3 flex gap-2">
+                    <Link to="/session" className={buttonClass('solid', 'sm', 'flex-1')}>Resume</Link>
+                    <Button variant="quiet" size="sm" className="flex-1" onClick={() => setConfirmDiscard(true)}>
                         Discard
                     </Button>
                 </div>
             ) : (
                 <>
-                    <p className="text-xs text-gray-400 mt-3">
+                    <p className="mt-3 text-[11.5px] text-steel">
                         Discarding deletes this session and every set logged in it. This cannot be undone.
                     </p>
-                    <div className="flex gap-2 mt-2">
+                    <div className="mt-2 flex gap-2">
                         <Button
-                            color="failure" size="sm" className="w-full"
+                            variant="danger" size="sm" className="flex-1"
                             disabled={isPending}
                             onClick={() => discardSession(session.id)}
                         >
                             {isPending ? 'Discarding…' : 'Confirm discard'}
                         </Button>
-                        <Button color="alternative" size="sm" className="w-full" onClick={() => setConfirmDiscard(false)}>
+                        <Button variant="quiet" size="sm" className="flex-1" onClick={() => setConfirmDiscard(false)}>
                             Keep
                         </Button>
                     </div>

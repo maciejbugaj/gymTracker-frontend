@@ -60,6 +60,15 @@ export interface ReorderExerciseSetsRequest {
 export interface StoreState {
   ongoingSession: WorkoutSession | null
   setOngoingSession: (session: WorkoutSession | null) => void
+  // When the current rest break started, as epoch ms; null when no break is running.
+  // Stored as a timestamp rather than a countdown so the remaining time is derived from the
+  // wall clock — it stays right across re-renders and while the session screen is closed.
+  breakStartedAt: number | null
+  // How long the current break runs. Set from the plan's restSeconds for the exercise just
+  // logged, and kept afterwards so the idle timer shows the length the next Start will use.
+  breakDurationMs: number
+  startBreak: (durationMs?: number) => void
+  stopBreak: () => void
   // How many set rows the table shows per exercise, keyed by `${sessionId}:${exerciseName}`.
   // Only what the user changed by hand lives here — the default row count is derived from the
   // plan and the previous session on every render.

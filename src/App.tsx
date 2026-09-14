@@ -24,7 +24,7 @@ export default function App() {
   }, [isLoading, isAuthenticated, signinRedirect])
 
   if (isLoading || !isAuthenticated) {
-    return <div className="flex h-screen items-center justify-center text-gray-500">Ładowanie…</div>
+    return <div className="flex h-screen items-center justify-center text-[13px] text-steel">Signing you in…</div>
   }
   return (
     <div>

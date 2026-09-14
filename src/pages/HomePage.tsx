@@ -3,12 +3,16 @@ import LastSessionCard from '../components/LastSessionCard';
 import NewSessionCard from '../components/NewSessionCard';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
 import { useActiveProgram } from '../hooks/useTrainingPrograms';
-import { Button } from 'flowbite-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { WorkoutTemplate } from '../types';
 import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
 import OngoingSessionCard from '../components/OngoingSessionCard';
+import Button from '../components/ui/Button';
+
+const SECTION_CLASS = 'px-4 pb-2 pt-5 font-condensed text-[14px] font-semibold text-steel'
+
+const TODAY_FORMAT: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' }
 
 export default function HomePage() {
     const { data: session, isLoading: isLoadingSession, error: errorSession } = useLastSession()
@@ -17,7 +21,6 @@ export default function HomePage() {
     const { data: activeProgram } = useActiveProgram()
     const { mutate: createSession } = useCreateSession()
     const [workoutTemplateToStart, setWorkoutTemplateToStart] = useState<WorkoutTemplate | null>(null)
-
 
     const startSession = () => {
         if (workoutTemplateToStart) {
@@ -36,57 +39,60 @@ export default function HomePage() {
     useSyncOngoingSession();
 
     return (
-
-        <div className='w-full px-4 pb-16'>
-            <div className='px-4 pt-6 pb-2'>
-                <h1>GYM Tracker</h1>
-                <p className="text-gray-500 text-sm mt-1">Choose a session to start</p>
-            </div>
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <p className="font-condensed text-[12px] font-semibold text-steel">
+                    {new Date().toLocaleDateString(undefined, TODAY_FORMAT)}
+                </p>
+                <h1 className="mt-1 font-condensed text-[26px] font-bold leading-none">Gym Tracker</h1>
+            </header>
 
             {ongoingSession && <OngoingSessionCard session={ongoingSession} />}
 
             {activeProgram && (
-                <Link to={`/programs/${activeProgram.program.id}`} className="block rounded-xl bg-gray-800 border border-violet-500/30 p-4 mx-2 mb-4 hover:bg-gray-700 transition-colors">
-                    <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">Active Program</p>
-                    <p className="text-sm font-medium text-gray-100 mb-2">{activeProgram.program.name}</p>
-                    {activeProgram.nextDay ? (
-                        <>
-                            <p className="text-xs text-gray-400 mb-3">
-                                Next: Week {activeProgram.nextDay.weekNumber} · Day {activeProgram.nextDay.dayNumber}
-                                {activeProgram.nextDay.dayName ? ` (${activeProgram.nextDay.dayName})` : ''}
-                            </p>
-                            <Button
-                                color="purple" size="sm" className="w-full"
-                                onClick={(e) => { e.preventDefault(); startProgramDay() }}
-                                disabled={!!ongoingSession}
-                            >
-                                Start
-                            </Button>
-                        </>
-                    ) : (
-                        <p className="text-xs text-gray-400">All days completed 🎉</p>
-                    )}
-                </Link>
+                <>
+                    <h2 className={SECTION_CLASS}>Training block</h2>
+                    <div className="border-l-[3px] border-plate-20 bg-platform-800 px-4 py-3">
+                        <Link
+                            to={`/programs/${activeProgram.program.id}`}
+                            className="font-condensed text-[16px] font-semibold leading-tight hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                            {activeProgram.program.name}
+                        </Link>
+                        {activeProgram.nextDay ? (
+                            <>
+                                <p className="mt-1 text-[11.5px] text-steel">
+                                    Next up: week <span className="font-medium text-chalk-dim">{activeProgram.nextDay.weekNumber}</span>,
+                                    day <span className="font-medium text-chalk-dim">{activeProgram.nextDay.dayNumber}</span>
+                                    {activeProgram.nextDay.dayName ? ` — ${activeProgram.nextDay.dayName}` : ''}
+                                    {activeProgram.nextDay.isDeload ? ' · deload week' : ''}
+                                </p>
+                                <Button
+                                    className="mt-3 w-full"
+                                    size="sm"
+                                    onClick={startProgramDay}
+                                    disabled={!!ongoingSession}
+                                >
+                                    Start {activeProgram.nextDay.dayName ?? `day ${activeProgram.nextDay.dayNumber}`}
+                                </Button>
+                            </>
+                        ) : (
+                            <p className="mt-1 text-[11.5px] text-steel">Every day in this block is done. Pick a new program to keep going.</p>
+                        )}
+                    </div>
+                </>
             )}
 
-            <div className='grid'>
-                <div>
-                    <div className="flex">
-                        <h2>Last Session</h2>
-                    </div>
-                </div>
-                <LastSessionCard
-                    session={session}
-                    isLoading={isLoadingSession}
-                    error={errorSession}
-                    description={workoutTemplates?.find(t => t.id === session?.workoutTemplateId)?.description}
-                />
-                <div className="mt-2">
-                    <div className="flex">
-                        <h2>Start Session</h2>
-                    </div>
-                </div>
+            <h2 className={SECTION_CLASS}>Last session</h2>
+            <LastSessionCard
+                session={session}
+                isLoading={isLoadingSession}
+                error={errorSession}
+                description={workoutTemplates?.find(t => t.id === session?.workoutTemplateId)?.description}
+            />
 
+            <h2 className={SECTION_CLASS}>Start a session</h2>
+            <div className="flex flex-col gap-0.5">
                 {workoutTemplates?.map(template => (
                     <NewSessionCard
                         key={template.id}
@@ -97,11 +103,21 @@ export default function HomePage() {
                         setWorkoutTemplateToStart={setWorkoutTemplateToStart}
                     />
                 ))}
+                {(isLoadingTemplates || errorTemplates || workoutTemplates?.length === 0) && (
+                    <NewSessionCard template={undefined} isLoading={isLoadingTemplates} error={errorTemplates} />
+                )}
             </div>
-            <div className='flex mt-4 mb-20'>
-                {!workoutTemplateToStart && !ongoingSession && <p className='w-full text-sm sm:text-xl text-gray-500'>Select a session to start</p>}
-                {ongoingSession && <p className='w-full text-sm sm:text-lg text-gray-500'>Finish or discard the ongoing session before starting a new one.</p>}
-                {workoutTemplateToStart && !ongoingSession && <Button className='w-full text-xl' color="alternative" size="lg" onClick={startSession}>Start Session</Button>}
+
+            <div className="px-4 pt-4">
+                {ongoingSession ? (
+                    <p className="text-[13px] text-steel">Finish or discard the session in progress before starting a new one.</p>
+                ) : workoutTemplateToStart ? (
+                    <Button size="lg" className="w-full" onClick={startSession}>
+                        Start {workoutTemplateToStart.name}
+                    </Button>
+                ) : (
+                    <p className="text-[13px] text-steel">Pick a template above to start a session.</p>
+                )}
             </div>
         </div>
     )

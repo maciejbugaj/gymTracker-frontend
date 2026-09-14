@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Card } from "flowbite-react";
 import type { WorkoutTemplate } from "../types";
 import { useDeleteWorkoutTemplate } from "../hooks/useWorkoutTemplates";
+import Button from "./ui/Button";
 
 interface TemplateCardProps {
     template: WorkoutTemplate | undefined
@@ -16,46 +16,54 @@ export default function TemplateCard({ template, isLoading, error }: TemplateCar
     const deleteTemplate = useDeleteWorkoutTemplate()
 
     if (isLoading) {
-        return <Card>
-            <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
-                <span className="sr-only">Loading…</span>
+        return (
+            <div className="h-[72px] animate-pulse bg-platform-800">
+                <span className="sr-only">Loading templates…</span>
             </div>
-        </Card>
+        )
     }
 
     if (error) {
-        return <Card>
-            <div role="alert" className="text-red-500">Error loading templates</div>
-        </Card>
+        return (
+            <div role="alert" className="bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                Templates didn't load. Try again in a moment.
+            </div>
+        )
     }
 
     if (!template) {
-        return <Card>
-            <p className="text-sm text-gray-400">No templates created - create first template.</p>
-        </Card>
-    }
-    return (
-        <Card className="mt-2 mb-2">
-            <div className="flex justify-between items-start gap-4">
-                <div className="text-left">
-                    <h2>{template.name}</h2>
-                    <p className="text-xs sm:text-sm md:text-lg text-gray-500">{template.exercises.length} exercises</p>
-                    <p className="text-xs sm:text-sm md:text-lg text-gray-500">{template?.description}</p>
-                </div>
-                <div className="flex-shrink-0">
-                    {!confirmDelete ? (
-                        <div className="flex gap-2">
-                            <Button color="alternative" size="sm" onClick={() => navigate(`/templates/${template.id}/edit`)}>Edit</Button>
-                            <Button color="red" size="sm" onClick={() => setConfirmDelete(true)}>Delete</Button>
-                        </div>
-                    ) : (
-                        <div className="flex gap-2">
-                            <Button color="red" size="sm" disabled={deleteTemplate.isPending} onClick={() => deleteTemplate.mutate(template.id)}>Confirm Delete</Button>
-                            <Button color="alternative" size="sm" onClick={() => setConfirmDelete(false)}>Cancel</Button>
-                        </div>
-                    )}
-                </div>
+        return (
+            <div className="bg-platform-800 px-4 py-3 text-[13px] text-steel">
+                No templates yet. Create your first one above.
             </div>
-        </Card>
+        )
+    }
+
+    return (
+        <div className="flex items-start justify-between gap-3 bg-platform-800 px-4 py-3">
+            <div className="min-w-0">
+                <p className="font-condensed text-[16px] font-semibold leading-tight">{template.name}</p>
+                <p className="mt-0.5 text-[11.5px] text-steel">
+                    <span className="font-medium text-chalk-dim">{template.exercises.length}</span>
+                    {template.exercises.length === 1 ? ' exercise' : ' exercises'}
+                    {template.description ? ` · ${template.description}` : ''}
+                </p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+                {!confirmDelete ? (
+                    <>
+                        <Button variant="quiet" size="sm" onClick={() => navigate(`/templates/${template.id}/edit`)}>Edit</Button>
+                        <Button variant="outline" size="sm" onClick={() => setConfirmDelete(true)}>Delete</Button>
+                    </>
+                ) : (
+                    <>
+                        <Button variant="danger" size="sm" disabled={deleteTemplate.isPending} onClick={() => deleteTemplate.mutate(template.id)}>
+                            {deleteTemplate.isPending ? 'Deleting…' : 'Confirm delete'}
+                        </Button>
+                        <Button variant="quiet" size="sm" onClick={() => setConfirmDelete(false)}>Keep</Button>
+                    </>
+                )}
+            </div>
+        </div>
     )
 }

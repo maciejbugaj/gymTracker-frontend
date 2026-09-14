@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { deleteExerciseSet, getPreviousExerciseLogsByProgramDayId, getPreviousExerciseLogsByWorkoutTemplateId, logExerciseSet, reorderExerciseSets } from "../api/exerciseLog"
 import type { ExerciseLog } from "../types"
-import { sessionStore } from '../stores/StoreSession'
+import { DEFAULT_BREAK_MS, sessionStore } from '../stores/StoreSession'
 
 export const useLogExerciseSet = () => {
     const queryClient = useQueryClient()
@@ -10,6 +10,16 @@ export const useLogExerciseSet = () => {
         onSuccess: (data: ExerciseLog) => {
             const prev = sessionStore.getState().ongoingSession;
             sessionStore.getState().setOngoingSession(prev ? { ...prev, exerciseLogs: [...(prev.exerciseLogs || []), data] } : prev);
+            // Finishing a set is what starts the rest between sets, so the break restarts here
+            // rather than waiting for a second tap — and restarts from zero if one is running.
+            // A program day prescribes rest per exercise; template sessions don't, so those
+            // fall back to the default length.
+            const restSeconds = prev?.prescribedExercises
+                ?.find(exercise => exercise.exerciseName === data.exerciseName)
+                ?.restSeconds
+            sessionStore.getState().startBreak(
+                restSeconds != null && restSeconds > 0 ? restSeconds * 1000 : DEFAULT_BREAK_MS
+            );
             // The ongoing session (with its logs) is what the session screen renders from, so it
             // has to be refetched — otherwise navigating away and back restores a stale cache.
             queryClient.invalidateQueries({ queryKey: ['lastOngoingSession'] })

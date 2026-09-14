@@ -1,7 +1,8 @@
 import { useState } from "react"
-import { Button } from "flowbite-react"
 import TemplateCard from "../components/TemplateCard"
 import { useWorkoutTemplates, useCreateWorkoutTemplate } from "../hooks/useWorkoutTemplates"
+import Button from "../components/ui/Button"
+import { INPUT_CLASS, LABEL_CLASS } from "../components/ui/form"
 
 export default function Templates() {
     const { data: workoutTemplates, isLoading: isLoadingTemplates, error: errorTemplates } = useWorkoutTemplates()
@@ -20,55 +21,59 @@ export default function Templates() {
     }
 
     return (
-        <div className='w-full px-4 pb-16'>
-            <div className='p-4'>
-                <h1>Templates</h1>
-                <p className="text-gray-500 text-sm">Manage your workout templates</p>
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <h1 className="font-condensed text-[26px] font-bold leading-none">Templates</h1>
+                <p className="mt-1 text-[12.5px] text-steel">Your own sessions, reused every week.</p>
+            </header>
+
+            <div className="flex items-center justify-between px-4 pb-2 pt-3">
+                <h2 className="font-condensed text-[14px] font-semibold text-steel">Your templates</h2>
+                <Button variant={showForm ? 'quiet' : 'solid'} size="sm" onClick={() => setShowForm(v => !v)}>
+                    {showForm ? 'Cancel' : 'New template'}
+                </Button>
             </div>
-            <div className='grid'>
-                <div className="mt-2 mb-3 flex items-center justify-between">
-                    <h2>Your Templates</h2>
-                    <Button size="xs" color="purple" onClick={() => setShowForm(v => !v)}>
-                        {showForm ? 'Cancel' : '+ New Template'}
+
+            {showForm && (
+                <div className="mb-2 flex flex-col gap-3 bg-platform-800 px-4 py-4">
+                    <div>
+                        <label htmlFor="template-name" className={LABEL_CLASS}>Name</label>
+                        <input
+                            id="template-name"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="e.g. Push A"
+                            className={INPUT_CLASS}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="template-description" className={LABEL_CLASS}>Description (optional)</label>
+                        <input
+                            id="template-description"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            placeholder="e.g. Chest, shoulders, triceps"
+                            className={INPUT_CLASS}
+                        />
+                    </div>
+                    <Button
+                        size="md"
+                        className="w-full"
+                        onClick={handleCreate}
+                        disabled={!name.trim() || createTemplate.isPending}
+                    >
+                        {createTemplate.isPending ? 'Creating…' : 'Create and add exercises'}
                     </Button>
                 </div>
+            )}
 
-                {showForm && (
-                    <div className="rounded-xl bg-gray-800 border border-gray-700 p-4 mb-4">
-                        <h3 className="text-sm font-semibold text-gray-300 mb-3">New Template</h3>
-                        <div className="mb-3">
-                            <label className="block text-xs text-gray-400 mb-1">Name</label>
-                            <input
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                                placeholder="e.g. Push Day"
-                                className="w-full rounded-lg bg-gray-700 border border-gray-600 text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder-gray-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-xs text-gray-400 mb-1">Description (optional)</label>
-                            <input
-                                value={description}
-                                onChange={e => setDescription(e.target.value)}
-                                placeholder="e.g. Chest, shoulders, triceps"
-                                className="w-full rounded-lg bg-gray-700 border border-gray-600 text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder-gray-500"
-                            />
-                        </div>
-                        <Button
-                            size="sm"
-                            color="purple"
-                            onClick={handleCreate}
-                            disabled={!name.trim() || createTemplate.isPending}
-                            className="w-full"
-                        >
-                            Create &amp; Add Exercises
-                        </Button>
-                    </div>
-                )}
-
+            <div className="flex flex-col gap-0.5">
                 {workoutTemplates?.map(template => (
                     <TemplateCard template={template} isLoading={isLoadingTemplates} error={errorTemplates} key={template.id} />
                 ))}
+                {(isLoadingTemplates || errorTemplates || workoutTemplates?.length === 0) && (
+                    <TemplateCard template={undefined} isLoading={isLoadingTemplates} error={errorTemplates} />
+                )}
             </div>
         </div>
     )

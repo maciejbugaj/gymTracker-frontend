@@ -1,5 +1,4 @@
 import { useStore } from '../stores/StoreSession'
-import { Card } from 'flowbite-react';
 import { useWorkoutTemplateById } from '../hooks/useWorkoutTemplates';
 import { useGetExerciseLogsByProgramDayId, useGetExerciseLogsByWorkoutTemplateId } from '../hooks/useExerciseLog';
 import ExerciseSetsTable from './ExerciseSetsTable';
@@ -43,20 +42,27 @@ export default function LogExerciseCard() {
     if (!sessionId) return null
 
     return (
-        <>
+        <div className="flex flex-col">
             {exercisesToLog.map(exercise => {
                 const currentLogs = exerciseLogs.filter(log => log.exerciseName === exercise.exerciseName)
                 const previousLogs = (previousExerciseLogs ?? [])
                     .filter(log => log.exerciseName === exercise.exerciseName)
                     .sort((a, b) => (a.setNumber ?? 0) - (b.setNumber ?? 0))
 
+                const done = currentLogs.length
+                const target = exercise.setsTarget
+                const isComplete = target != null && done >= target
+
                 return (
-                    <Card key={exercise.key} className='mt-2 mb-2'>
-                        <div className='flex items-center justify-between'>
-                            <h2 className="text-base font-semibold text-gray-100 tracking-tight normal-case">{exercise.exerciseName}</h2>
-                            <span className="stat-number text-sm text-violet-400">
-                                {currentLogs.length}
-                                <span className="text-gray-600">/{exercise.setsTarget}</span>
+                    <section key={exercise.key} className="mb-2">
+                        <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4">
+                            <h2 className="font-condensed text-[18px] font-semibold leading-none">{exercise.exerciseName}</h2>
+                            <span
+                                className={`font-condensed text-[14px] font-semibold ${
+                                    isComplete ? 'text-good' : done > 0 ? 'text-accent' : 'text-steel-dark'
+                                }`}
+                            >
+                                {done} / {target ?? '—'}
                             </span>
                         </div>
                         <ExerciseSetsTable
@@ -67,10 +73,10 @@ export default function LogExerciseCard() {
                             previousLogs={previousLogs}
                             currentLogs={currentLogs}
                         />
-                    </Card>
+                    </section>
                 )
             })}
-        </>
+        </div>
     )
 
 }

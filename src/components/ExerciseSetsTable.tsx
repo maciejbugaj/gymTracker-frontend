@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Checkbox } from 'flowbite-react'
 import type { ExerciseLog } from '../types'
 import { useLogExerciseSet, useRemoveSetRow } from '../hooks/useExerciseLog'
 import { useStore } from '../stores/StoreSession'
+import PlateLoad from './PlateLoad'
+import Button from './ui/Button'
 
 interface ExerciseSetsTableProps {
     sessionId: number
@@ -19,8 +20,12 @@ type SetDraft = { reps?: string; weightKg?: string }
 type DraftField = keyof SetDraft
 
 // Same columns for the header and every row, so they line up without a real <table>.
-const ROW_GRID = 'grid grid-cols-[1.5rem_4rem_1fr_1fr_1.75rem_1.5rem] gap-1 items-center'
-const INPUT_CLASS = 'w-full text-center border border-gray-200 rounded-lg px-1 py-1 text-sm disabled:bg-gray-700 disabled:text-gray-400 disabled:border-gray-700'
+const ROW_GRID = 'grid grid-cols-[18px_46px_1fr_1fr_44px_26px] gap-1.5 items-center px-4'
+const INPUT_CLASS =
+    'w-full rounded-sm border border-platform-500 bg-platform-900 px-1 py-2 text-center font-condensed ' +
+    'text-[17px] font-semibold text-chalk focus:border-accent focus:outline-none ' +
+    'disabled:border-transparent disabled:bg-transparent disabled:text-chalk'
+const VALUE_CLASS = 'py-2 text-center font-condensed text-[17px] font-bold text-chalk'
 
 function formatPrevious(log: ExerciseLog | undefined): string {
     return log ? `${log.reps ?? 0}×${log.weightKg ?? 0}` : '—'
@@ -122,15 +127,34 @@ export default function ExerciseSetsTable({
         setRowCount(sessionId, exerciseName, rowCount - 1)
     }
 
+    // The set you are about to do — what the readout and the plate bar describe. Once every
+    // row is saved it falls back to the last one, so the panel never goes blank mid-exercise.
+    const workingRow = rows.find(row => !savedByRow.has(row)) ?? rowCount
+    const workingWeight = valueFor(workingRow, 'weightKg')
+    const workingReps = valueFor(workingRow, 'reps')
+
     return (
         <div className="text-left">
-            <div className={`${ROW_GRID} text-[10px] uppercase tracking-wider text-gray-500 mb-1`}>
-                <span>Set</span>
+            {workingWeight !== '' && (
+                <div className="flex flex-col gap-1.5 bg-platform-800 px-4 pb-3 pt-2.5">
+                    <div className="flex items-end gap-2">
+                        <span className="font-condensed text-[46px] font-bold leading-[0.82] tracking-tight">{workingWeight}</span>
+                        <span className="pb-1 font-condensed text-[15px] font-semibold text-steel">kg</span>
+                        {workingReps !== '' && (
+                            <span className="ml-auto pb-1 font-condensed text-[20px] font-semibold text-steel">× {workingReps}</span>
+                        )}
+                    </div>
+                    <PlateLoad weightKg={Number(workingWeight)} />
+                </div>
+            )}
+
+            <div className={`${ROW_GRID} pb-1 font-condensed text-[11px] font-semibold tracking-wide text-steel-dark`}>
+                <span aria-hidden="true" />
                 <span>Prev</span>
                 <span className="text-center">Reps</span>
                 <span className="text-center">Kg</span>
-                <span />
-                <span />
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
             </div>
 
             {rows.map(row => {
@@ -140,41 +164,66 @@ export default function ExerciseSetsTable({
                 const canSave = repsValue !== '' && Number(repsValue) > 0
 
                 return (
-                    <div key={row} className={`${ROW_GRID} mb-1`}>
-                        <span className="stat-number text-sm">{row}</span>
-                        <span className="font-mono text-xs text-gray-500">{formatPrevious(previousByRow.get(row))}</span>
-                        <input
-                            className={INPUT_CLASS}
-                            type="number"
-                            inputMode="numeric"
-                            aria-label={`Reps, set ${row}, ${exerciseName}`}
-                            placeholder={repsPlaceholder}
-                            disabled={isSaved}
-                            value={repsValue}
-                            onChange={event => handleDraftChange(row, 'reps', event.target.value)}
-                        />
-                        <input
-                            className={INPUT_CLASS}
-                            type="number"
-                            inputMode="decimal"
-                            aria-label={`Weight in kg, set ${row}, ${exerciseName}`}
-                            placeholder="0"
-                            disabled={isSaved}
-                            value={valueFor(row, 'weightKg')}
-                            onChange={event => handleDraftChange(row, 'weightKg', event.target.value)}
-                        />
-                        <Checkbox
-                            className="justify-self-center"
+                    <div
+                        key={row}
+                        className={`${ROW_GRID} py-1.5 ${row % 2 === 0 ? 'bg-platform-750' : 'bg-platform-800'}`}
+                    >
+                        <span className="font-condensed text-[14px] font-bold text-steel-dark">{row}</span>
+                        <span className="font-condensed text-[13px] font-semibold text-steel-dark">
+                            {formatPrevious(previousByRow.get(row))}
+                        </span>
+
+                        {isSaved ? (
+                            <>
+                                <span className={VALUE_CLASS}>{repsValue || '—'}</span>
+                                <span className={VALUE_CLASS}>{valueFor(row, 'weightKg') || '—'}</span>
+                            </>
+                        ) : (
+                            <>
+                                <input
+                                    className={INPUT_CLASS}
+                                    type="number"
+                                    inputMode="numeric"
+                                    aria-label={`Reps, set ${row}, ${exerciseName}`}
+                                    placeholder={repsPlaceholder}
+                                    value={repsValue}
+                                    onChange={event => handleDraftChange(row, 'reps', event.target.value)}
+                                />
+                                <input
+                                    className={INPUT_CLASS}
+                                    type="number"
+                                    inputMode="decimal"
+                                    aria-label={`Weight in kg, set ${row}, ${exerciseName}`}
+                                    placeholder="0"
+                                    value={valueFor(row, 'weightKg')}
+                                    onChange={event => handleDraftChange(row, 'weightKg', event.target.value)}
+                                />
+                            </>
+                        )}
+
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={isSaved}
                             aria-label={`Save set ${row} of ${exerciseName}`}
                             title={!isSaved && !canSave ? 'Enter reps first' : undefined}
-                            checked={isSaved}
                             disabled={isBusy || (!isSaved && !canSave)}
-                            onChange={() => handleToggleRow(row)}
-                        />
+                            onClick={() => handleToggleRow(row)}
+                            className={`flex h-9 w-11 cursor-pointer items-center justify-center rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40 ${
+                                isSaved ? 'bg-good' : 'bg-platform-600 hover:bg-platform-500'
+                            }`}
+                        >
+                            {isSaved && (
+                                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="#fff" strokeWidth="3" aria-hidden="true">
+                                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            )}
+                        </button>
+
                         <button
                             type="button"
                             aria-label={`Remove set ${row} of ${exerciseName}`}
-                            className="text-gray-500 hover:text-red-400 text-sm disabled:opacity-30"
+                            className="cursor-pointer text-[18px] leading-none text-steel-dark transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-30"
                             disabled={isBusy || rowCount === 1}
                             onClick={() => handleRemoveRow(row)}
                         >
@@ -184,14 +233,11 @@ export default function ExerciseSetsTable({
                 )
             })}
 
-            <button
-                type="button"
-                className="mt-1 w-full rounded-lg border border-dashed border-gray-600 py-1 text-xs text-gray-400 hover:text-violet-300 hover:border-violet-500 disabled:opacity-40"
-                disabled={isBusy}
-                onClick={handleAddSet}
-            >
-                + Add Set
-            </button>
+            <div className="bg-platform-800 px-4 pb-3 pt-2">
+                <Button variant="outline" size="sm" className="w-full" disabled={isBusy} onClick={handleAddSet}>
+                    Add set
+                </Button>
+            </div>
         </div>
     )
 }

@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BreakTimer from '../components/BreakTimer';
-import { Button } from 'flowbite-react';
 import SessionDuration from '../components/SessionDuration';
 import { useDiscardSession, useFinishSession } from '../hooks/useSessions';
 import LogExerciseCard from '../components/LogExerciseCard';
 import { useSyncOngoingSession } from '../hooks/useSyncOngoingSession';
 import { useStore } from '../stores/StoreSession';
-
+import Button from '../components/ui/Button';
+import { buttonClass } from '../components/ui/buttonClass';
 
 export default function Session() {
     const sessionId = useStore((state) => state.ongoingSession?.id)
@@ -24,7 +23,6 @@ export default function Session() {
     const [confirmFinish, setConfirmFinish] = useState(false)
     const [confirmDiscard, setConfirmDiscard] = useState(false)
     const navigate = useNavigate()
-
 
     function handleFinishSession() {
         if (!sessionId) {
@@ -46,63 +44,62 @@ export default function Session() {
 
     if (!sessionId) {
         return (
-            <div className='w-full px-4 flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center'>
-                <h1 className="text-gray-300">No active session</h1>
-                <p className="text-gray-500 text-sm max-w-xs">Select a template on the home page to start tracking your workout.</p>
-                <Link to="/" className="mt-2 px-6 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors">
-                    Go to Home
-                </Link>
+            <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                <h1 className="font-condensed text-[24px] font-bold leading-none">No session running</h1>
+                <p className="max-w-xs text-[13px] text-steel">
+                    Pick a template or a program day on the home screen to start logging sets.
+                </p>
+                <Link to="/" className={buttonClass('solid', 'md')}>Go to home</Link>
             </div>
         )
     }
 
     return (
-        <div className='w-full px-4'>
-            <div className='px-4 pt-6 pb-2'>
-                <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">Active Session</p>
-                <h1>{sessionTitle}</h1>
-                {programName && (
-                    <p className="text-gray-500 text-sm mt-1">
-                        {programName} · Week {weekNumber}{isDeload ? ' · Deload' : ''}
-                    </p>
-                )}
-            </div>
-            <SessionDuration startedAt={startedAt} />
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <p className="flex flex-wrap items-baseline gap-x-2 font-condensed text-[12px] font-semibold text-steel">
+                    {programName && (
+                        <span>
+                            {programName}
+                            {weekNumber != null ? ` · week ${weekNumber}` : ''}
+                            {isDeload ? ' · deload' : ''}
+                        </span>
+                    )}
+                    <SessionDuration startedAt={startedAt} />
+                </p>
+                <h1 className="mt-1 font-condensed text-[26px] font-bold leading-none">{sessionTitle}</h1>
+            </header>
+
             <BreakTimer />
-            <div className='grid'>
-                <div className="m-2">
-                    <div className="flex">
-                        <h2>Log Sets</h2>
+
+            <LogExerciseCard />
+
+            <div className="px-4 pt-5">
+                {confirmFinish && (
+                    <div className="flex gap-2">
+                        <Button variant="solid" size="lg" className="flex-1" onClick={handleFinishSession}>Confirm finish</Button>
+                        <Button variant="quiet" size="lg" className="flex-1" onClick={() => setConfirmFinish(false)}>Keep going</Button>
                     </div>
-                </div>
-                <LogExerciseCard />
-                <div className='mt-4 mb-20'>
-                    {confirmFinish && (
-                        <div className='flex gap-2'>
-                            <Button className='w-full' color='failure' size='lg' onClick={handleFinishSession}>Confirm Finish</Button>
-                            <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmFinish(false)}>Cancel</Button>
+                )}
+                {confirmDiscard && (
+                    <>
+                        <p className="mb-2 text-[12px] text-steel">
+                            Discarding deletes this session and every set logged in it. This cannot be undone.
+                        </p>
+                        <div className="flex gap-2">
+                            <Button variant="danger" size="lg" className="flex-1" disabled={isDiscarding} onClick={handleDiscardSession}>
+                                {isDiscarding ? 'Discarding…' : 'Confirm discard'}
+                            </Button>
+                            <Button variant="quiet" size="lg" className="flex-1" onClick={() => setConfirmDiscard(false)}>Keep</Button>
                         </div>
-                    )}
-                    {confirmDiscard && (
-                        <>
-                            <p className='text-xs text-gray-400 mb-2 text-left'>
-                                Discarding deletes this session and every set logged in it. This cannot be undone.
-                            </p>
-                            <div className='flex gap-2'>
-                                <Button className='w-full' color='failure' size='lg' disabled={isDiscarding} onClick={handleDiscardSession}>
-                                    {isDiscarding ? 'Discarding…' : 'Confirm Discard'}
-                                </Button>
-                                <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmDiscard(false)}>Keep</Button>
-                            </div>
-                        </>
-                    )}
-                    {!confirmFinish && !confirmDiscard && (
-                        <div className='flex gap-2'>
-                            <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmFinish(true)}>Finish Session</Button>
-                            <Button className='w-full' color='alternative' size='lg' onClick={() => setConfirmDiscard(true)}>Discard</Button>
-                        </div>
-                    )}
-                </div>
+                    </>
+                )}
+                {!confirmFinish && !confirmDiscard && (
+                    <div className="flex gap-2">
+                        <Button variant="solid" size="lg" className="flex-1" onClick={() => setConfirmFinish(true)}>Finish session</Button>
+                        <Button variant="quiet" size="lg" className="flex-1" onClick={() => setConfirmDiscard(true)}>Discard</Button>
+                    </div>
+                )}
             </div>
         </div>
     )
