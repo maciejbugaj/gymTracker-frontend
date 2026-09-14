@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { Button } from 'flowbite-react'
 import { useStartGeneration } from '../hooks/useAiPlanGeneration'
 import { useSessions } from '../hooks/useSessions'
 import type { GeneratePlanRequest, ProgramGoal } from '../types'
-
-const inputClass = "w-full rounded-lg bg-gray-700 border border-gray-600 text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder-gray-500"
-const labelClass = "block text-xs text-gray-400 mb-1"
+import Button from '../components/ui/Button'
+import { INPUT_CLASS, LABEL_CLASS } from '../components/ui/form'
 
 function toList(value: string): string[] | undefined {
     const items = value.split(',').map(s => s.trim()).filter(Boolean)
@@ -44,26 +42,25 @@ export default function AiPlanGenerator() {
     }
 
     return (
-        <div className="w-full px-4 pb-24 pt-2">
-            <div className="px-2 pt-4 pb-2">
-                <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">AI Coach</p>
-                <h1>Generate a training program</h1>
-                <p className="text-gray-500 text-sm mt-1">Tell us your goal — Claude will design a periodized program using your training history.</p>
-            </div>
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <h1 className="font-condensed text-[26px] font-bold leading-none">New training block</h1>
+                <p className="mt-1.5 text-[12.5px] text-steel">
+                    Tell it your goal and it writes a periodized program around your logged sessions.
+                </p>
+            </header>
 
             {sessions && sessions.length > 0 && (
-                <div className="rounded-xl bg-gray-800 border border-gray-700 p-4 mb-4">
-                    <h3 className="text-sm font-semibold text-gray-300 mb-1">From your history</h3>
-                    <p className="text-xs text-gray-400">
-                        {sessions.length} logged session{sessions.length === 1 ? '' : 's'} will be used to calibrate starting weights and volume.
-                    </p>
-                </div>
+                <p className="border-l-[3px] border-plate-20 bg-platform-800 px-4 py-3 text-[12px] text-steel">
+                    <span className="font-medium text-chalk-dim">{sessions.length}</span> logged
+                    {sessions.length === 1 ? ' session' : ' sessions'} will set your starting weights and volume.
+                </p>
             )}
 
-            <div className="rounded-xl bg-gray-800 border border-gray-700 p-4 mb-4 flex flex-col gap-3">
+            <div className="mt-2 flex flex-col gap-3 bg-platform-800 px-4 py-4">
                 <div>
-                    <label className={labelClass}>Goal</label>
-                    <select value={goal} onChange={e => setGoal(e.target.value as ProgramGoal)} className={inputClass}>
+                    <label htmlFor="plan-goal" className={LABEL_CLASS}>Goal</label>
+                    <select id="plan-goal" value={goal} onChange={e => setGoal(e.target.value as ProgramGoal)} className={INPUT_CLASS}>
                         <option value="STRENGTH">Strength</option>
                         <option value="HYPERTROPHY">Hypertrophy</option>
                         <option value="ENDURANCE">Endurance</option>
@@ -72,57 +69,63 @@ export default function AiPlanGenerator() {
                 </div>
 
                 <div>
-                    <label className={labelClass}>Experience level (optional)</label>
-                    <input value={experienceLevel} onChange={e => setExperienceLevel(e.target.value)} placeholder="e.g. Intermediate" className={inputClass} />
+                    <label htmlFor="plan-experience" className={LABEL_CLASS}>Experience level (optional)</label>
+                    <input id="plan-experience" value={experienceLevel} onChange={e => setExperienceLevel(e.target.value)} placeholder="e.g. Intermediate" className={INPUT_CLASS} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <label className={labelClass}>Training days / week</label>
-                        <input type="number" min={1} max={7} value={daysPerWeek} onChange={e => setDaysPerWeek(Number(e.target.value))} className={inputClass} />
+                        <label htmlFor="plan-days" className={LABEL_CLASS}>Days a week</label>
+                        <input id="plan-days" type="number" min={1} max={7} value={daysPerWeek} onChange={e => setDaysPerWeek(Number(e.target.value))} className={INPUT_CLASS} />
                     </div>
                     <div>
-                        <label className={labelClass}>Program length (weeks)</label>
-                        <input type="number" min={1} max={52} value={durationWeeks} onChange={e => setDurationWeeks(Number(e.target.value))} className={inputClass} />
+                        <label htmlFor="plan-weeks" className={LABEL_CLASS}>Block length (weeks)</label>
+                        <input id="plan-weeks" type="number" min={1} max={52} value={durationWeeks} onChange={e => setDurationWeeks(Number(e.target.value))} className={INPUT_CLASS} />
                     </div>
                 </div>
 
                 <div>
-                    <label className={labelClass}>Session length (minutes)</label>
-                    <input type="number" min={10} max={240} value={sessionLengthMinutes} onChange={e => setSessionLengthMinutes(Number(e.target.value))} className={inputClass} />
+                    <label htmlFor="plan-length" className={LABEL_CLASS}>Session length (minutes)</label>
+                    <input id="plan-length" type="number" min={10} max={240} value={sessionLengthMinutes} onChange={e => setSessionLengthMinutes(Number(e.target.value))} className={INPUT_CLASS} />
                 </div>
 
                 <div>
-                    <label className={labelClass}>Equipment (optional, comma separated)</label>
-                    <input value={equipment} onChange={e => setEquipment(e.target.value)} placeholder="barbell, dumbbells, pull-up bar" className={inputClass} />
+                    <label htmlFor="plan-equipment" className={LABEL_CLASS}>Equipment you have (optional, comma separated)</label>
+                    <input id="plan-equipment" value={equipment} onChange={e => setEquipment(e.target.value)} placeholder="barbell, dumbbells, pull-up bar" className={INPUT_CLASS} />
                 </div>
 
                 <div>
-                    <label className={labelClass}>Split preference (optional)</label>
-                    <input value={splitPreference} onChange={e => setSplitPreference(e.target.value)} placeholder="e.g. Upper/Lower, Push/Pull/Legs — leave blank to let the AI decide" className={inputClass} />
+                    <label htmlFor="plan-split" className={LABEL_CLASS}>Split you prefer (optional)</label>
+                    <input id="plan-split" value={splitPreference} onChange={e => setSplitPreference(e.target.value)} placeholder="e.g. Upper/Lower — leave blank to let it decide" className={INPUT_CLASS} />
                 </div>
 
                 <div>
-                    <label className={labelClass}>Muscle groups to emphasize (optional, comma separated)</label>
-                    <input value={focusMuscleGroups} onChange={e => setFocusMuscleGroups(e.target.value)} placeholder="chest, back" className={inputClass} />
+                    <label htmlFor="plan-focus" className={LABEL_CLASS}>Muscle groups to emphasize (optional, comma separated)</label>
+                    <input id="plan-focus" value={focusMuscleGroups} onChange={e => setFocusMuscleGroups(e.target.value)} placeholder="chest, back" className={INPUT_CLASS} />
                 </div>
 
                 <div>
-                    <label className={labelClass}>Exclusions / injuries (optional)</label>
-                    <textarea value={exclusionsOrInjuries} onChange={e => setExclusionsOrInjuries(e.target.value)} rows={2} placeholder="e.g. avoid overhead pressing, knee pain on lunges" className={inputClass} />
+                    <label htmlFor="plan-exclusions" className={LABEL_CLASS}>Movements to avoid or injuries (optional)</label>
+                    <textarea id="plan-exclusions" value={exclusionsOrInjuries} onChange={e => setExclusionsOrInjuries(e.target.value)} rows={2} placeholder="e.g. no overhead pressing, knee pain on lunges" className={INPUT_CLASS} />
                 </div>
 
                 <div>
-                    <label className={labelClass}>Additional notes (optional)</label>
-                    <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className={inputClass} />
+                    <label htmlFor="plan-notes" className={LABEL_CLASS}>Anything else (optional)</label>
+                    <textarea id="plan-notes" value={notes} onChange={e => setNotes(e.target.value)} rows={2} className={INPUT_CLASS} />
                 </div>
             </div>
 
-            {error && <p className="text-red-400 text-sm mb-3">Could not start generation. Please try again.</p>}
+            {error && (
+                <p role="alert" className="mt-2 bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                    The plan didn't start. Check your connection and try again.
+                </p>
+            )}
 
-            <Button color="purple" size="lg" className="w-full" onClick={handleSubmit} disabled={isPending}>
-                {isPending ? 'Starting…' : 'Generate Program'}
-            </Button>
+            <div className="px-4 pt-4">
+                <Button size="lg" className="w-full" onClick={handleSubmit} disabled={isPending}>
+                    {isPending ? 'Starting…' : 'Write my program'}
+                </Button>
+            </div>
         </div>
     )
 }

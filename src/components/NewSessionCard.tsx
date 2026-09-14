@@ -1,4 +1,3 @@
-import { Card } from "flowbite-react";
 import type { WorkoutTemplate } from "../types";
 
 interface NewSessionCardProps {
@@ -11,23 +10,27 @@ interface NewSessionCardProps {
 
 export default function NewSessionCard({ template, isLoading, error, isSelected = false, setWorkoutTemplateToStart }: NewSessionCardProps) {
     if (isLoading) {
-        return <Card>
-            <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
-                <span className="sr-only">Loading…</span>
+        return (
+            <div className="h-[72px] animate-pulse bg-platform-800">
+                <span className="sr-only">Loading templates…</span>
             </div>
-        </Card>
+        )
     }
 
     if (error) {
-        return <Card>
-            <div role="alert" className="text-red-500">Error loading templates</div>
-        </Card>
+        return (
+            <div role="alert" className="bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                Templates didn't load. Pull to refresh or try again in a moment.
+            </div>
+        )
     }
 
     if (!template) {
-        return <Card>
-            <p className="text-sm text-gray-400">No templates created - create first template.</p>
-        </Card>
+        return (
+            <div className="bg-platform-800 px-4 py-3 text-[13px] text-steel">
+                No templates yet. Create one under Templates to start a session.
+            </div>
+        )
     }
 
     return (
@@ -35,32 +38,31 @@ export default function NewSessionCard({ template, isLoading, error, isSelected 
             type="button"
             aria-pressed={isSelected}
             onClick={() => setWorkoutTemplateToStart?.(template)}
-            className={`w-full text-left mt-2 mb-2 rounded-lg border p-4 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
+            className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                 isSelected
-                    ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-950/20 dark:bg-violet-950/20'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
+                    ? 'border-l-[3px] border-accent bg-platform-700 pl-[13px]'
+                    : 'bg-platform-800 hover:bg-platform-750'
             }`}
         >
-            <div className='flex items-center justify-between'>
-                <h2 className={isSelected ? 'text-violet-300' : ''}>{template.name}</h2>
-                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    isSelected ? 'border-violet-500 bg-violet-500' : 'border-gray-500 dark:border-gray-600'
-                }`}>
-                    {isSelected && (
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                    )}
+            <span className="min-w-0 flex-1">
+                <span className="block font-condensed text-[16px] font-semibold leading-tight">{template.name}</span>
+                {template.description && (
+                    <span className="mt-0.5 block text-[11.5px] text-steel">{template.description}</span>
+                )}
+                <span className="mt-1.5 flex flex-wrap gap-1.5">
+                    {template.exercises.map(exercise => (
+                        <span key={exercise.id} className="bg-platform-600 px-1.5 py-0.5 text-[10.5px] text-chalk-dim">
+                            {exercise.exerciseName}
+                        </span>
+                    ))}
                 </span>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-3">{template.description}</p>
-            <div className="flex flex-wrap gap-1.5">
-                {template.exercises.map(ex => (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 whitespace-nowrap" key={ex.id}>
-                        {ex.exerciseName}
-                    </span>
-                ))}
-            </div>
+            </span>
+            <span
+                aria-hidden="true"
+                className={`h-[17px] w-[17px] shrink-0 rounded-full border-2 transition-colors ${
+                    isSelected ? 'border-accent bg-accent ring-3 ring-inset ring-platform-700' : 'border-platform-400'
+                }`}
+            />
         </button>
     )
 }

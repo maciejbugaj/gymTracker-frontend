@@ -2,145 +2,94 @@
 @import "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
 
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/*
+ * "Platforma" — the palette is borrowed from competition plate colours (IWF), so weight
+ * carries colour rather than colour decorating weight: 25 red, 20 blue, 15 yellow,
+ * 10 green, 5 white. plate-15 doubles as the interface accent, plate-25 as destructive.
+ */
+@theme {
+  --color-platform-950: #12161b; /* bottom bar */
+  --color-platform-900: #171b21; /* app ground */
+  --color-platform-800: #1e242c; /* panel */
+  --color-platform-750: #212831; /* zebra row */
+  --color-platform-700: #232b35; /* raised / selected */
+  --color-platform-600: #2a323c; /* quiet control */
+  --color-platform-500: #39424e; /* input border */
+  --color-platform-400: #4a5462; /* control outline */
 
-  --sans: 'Inter', system-ui, sans-serif;
-  --heading: 'Inter', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --color-chalk: #f2f5f8;
+  --color-chalk-dim: #c6ced8;
+  --color-steel: #8d98a6;
+  --color-steel-dark: #6b7480;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-plate-25: #c8352e;
+  --color-plate-20: #1f5fa8;
+  --color-plate-15: #e0b421;
+  --color-plate-10: #2e7d4f;
+  --color-plate-5: #e8eaec;
+  --color-plate-sm: #6b7480;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --color-accent: #e0b421;
+  --color-danger: #c8352e;
+  --color-good: #2e7d4f;
+
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: "Barlow Condensed", "Barlow", ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+@layer base {
+  html {
+    color-scheme: dark;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  body {
+    margin: 0;
+    background: var(--color-platform-900);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-}
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+  #root {
+    max-width: 560px;
+    margin-inline: auto;
+    min-height: 100svh;
+  }
 
-body {
-  margin: 0;
-}
+  /* Headings are styled per component, never globally — reset only. */
+  h1,
+  h2,
+  h3 {
+    font: inherit;
+    margin: 0;
+  }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
+  p {
+    margin: 0;
+  }
 
-h1 {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  margin: 24px 0 4px;
-  text-wrap: balance;
-}
-h2 {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 100%;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text);
-  margin: 0 0 12px;
-}
-h3 {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  margin: 0;
-}
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 
-.timer {
-  font-family: var(--mono);
-  font-size: 2.5rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-h);
-}
-
-.stat-number {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-h);
-}
-p {
-  margin: 0;
-}
-
-button,
-a,
-[role="button"] {
-  touch-action: manipulation;
+  ::placeholder {
+    color: var(--color-steel-dark);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-pulse {
-    animation: none;
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

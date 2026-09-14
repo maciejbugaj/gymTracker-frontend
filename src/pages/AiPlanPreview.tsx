@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button } from 'flowbite-react'
 import { useGeneration, useRegenerate } from '../hooks/useAiPlanGeneration'
 import { useCreateProgramFromGeneration } from '../hooks/useTrainingPrograms'
 import { useAiPlanDraftStore } from '../stores/useAiPlanDraftStore'
 import type { GeneratedProgram, TrainingProgramRequest } from '../types'
+import Button from '../components/ui/Button'
+import { INPUT_CLASS, LABEL_CLASS, NUMBER_INPUT_CLASS } from '../components/ui/form'
 
 // GeneratedWeek/Day/Exercise are structurally identical to ProgramWeek/Day/ExerciseRequest,
 // so this is just dropping the AI-only fields (coachNotes) rather than remapping every level.
@@ -20,13 +21,11 @@ function toProgramRequest(program: GeneratedProgram): TrainingProgramRequest {
 }
 
 const PENDING_MESSAGES = [
-    'Reviewing your training history…',
-    'Designing the weekly structure…',
-    'Balancing volume and recovery…',
-    'Writing progression notes…',
+    'Reading your training history…',
+    'Laying out the weekly structure…',
+    'Balancing volume against recovery…',
+    'Writing the progression notes…',
 ]
-
-const inputClass = "w-full rounded-lg bg-gray-700 border border-gray-600 text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
 
 export default function AiPlanPreview() {
     const { generationId } = useParams<{ generationId: string }>()
@@ -74,99 +73,101 @@ export default function AiPlanPreview() {
     }
 
     if (isLoading || !generation) {
-        return <div className="w-full px-4 pt-16 text-center text-gray-500">Loading…</div>
+        return <div className="w-full px-4 pt-16 text-center text-[13px] text-steel">Loading…</div>
     }
 
     if (generation.status === 'PENDING') {
         return (
-            <div className="w-full px-4 pt-16 pb-24 flex flex-col items-center text-center gap-4">
-                <div className="h-10 w-10 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
-                <h1>Building your program…</h1>
-                <p className="text-gray-400 text-sm">{PENDING_MESSAGES[messageIndex]}</p>
+            <div className="flex w-full flex-col items-center gap-4 px-6 pb-24 pt-16 text-center">
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+                <h1 className="font-condensed text-[24px] font-bold leading-none">Writing your block</h1>
+                <p className="text-[13px] text-steel">{PENDING_MESSAGES[messageIndex]}</p>
             </div>
         )
     }
 
     if (generation.status === 'FAILED') {
         return (
-            <div className="w-full px-4 pt-16 pb-24 flex flex-col items-center text-center gap-4">
-                <h1 className="text-red-400">Generation failed</h1>
-                <p className="text-gray-400 text-sm max-w-xs">
-                    {generation.errorMessage ?? 'Something went wrong while generating your program.'}
+            <div className="flex w-full flex-col items-center gap-4 px-6 pb-24 pt-16 text-center">
+                <h1 className="font-condensed text-[24px] font-bold leading-none text-danger">The plan didn't finish</h1>
+                <p className="max-w-xs text-[13px] text-steel">
+                    {generation.errorMessage ?? 'Something broke while writing your program.'}
                 </p>
-                <Button color="purple" onClick={() => navigate('/ai-plan')}>Try again</Button>
+                <Button onClick={() => navigate('/ai-plan')}>Start over</Button>
             </div>
         )
     }
 
     if (!draft) {
-        return <div className="w-full px-4 pt-16 text-center text-gray-500">Loading…</div>
+        return <div className="w-full px-4 pt-16 text-center text-[13px] text-steel">Loading…</div>
     }
 
     return (
-        <div className="w-full px-4 pb-24 pt-2">
-            <div className="px-2 pt-4 pb-2">
-                <p className="text-xs font-semibold tracking-widest text-violet-400 uppercase mb-1">AI Coach</p>
-                <h1>{draft.name}</h1>
-                {draft.description && <p className="text-gray-500 text-sm mt-1">{draft.description}</p>}
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <h1 className="font-condensed text-[26px] font-bold leading-none">{draft.name}</h1>
+                {draft.description && <p className="mt-1.5 text-[12.5px] text-steel">{draft.description}</p>}
                 {(generation.inputTokens != null || generation.outputTokens != null) && (
-                    <p className="text-xs text-gray-600 mt-1">
+                    <p className="mt-1 text-[11px] text-steel-dark">
                         {(generation.inputTokens ?? 0) + (generation.outputTokens ?? 0)} tokens
                         ({generation.inputTokens ?? 0} in / {generation.outputTokens ?? 0} out)
                     </p>
                 )}
-            </div>
+            </header>
 
             {draft.coachNotes && (
-                <div className="rounded-xl bg-gray-800 border border-violet-500/30 p-4 mb-4">
-                    <h3 className="text-xs font-semibold text-violet-400 uppercase tracking-wide mb-1">Coach notes</h3>
-                    <p className="text-sm text-gray-300">{draft.coachNotes}</p>
+                <div className="border-l-[3px] border-plate-20 bg-platform-800 px-4 py-3">
+                    <h2 className="mb-1 font-condensed text-[14px] font-semibold text-steel">Coach notes</h2>
+                    <p className="text-[13px] text-chalk-dim">{draft.coachNotes}</p>
                 </div>
             )}
 
-            <div className="flex flex-col gap-2 mb-4">
+            <div className="mt-2 flex flex-col gap-0.5">
                 {draft.weeks.map((week, weekIndex) => (
-                    <div key={week.weekNumber} className="rounded-xl bg-gray-800 border border-gray-700 overflow-hidden">
+                    <div key={week.weekNumber} className={week.isDeload ? 'border-l-[3px] border-accent bg-platform-800' : 'bg-platform-800'}>
                         <button
-                            className="w-full flex items-center justify-between px-4 py-3 text-left cursor-pointer"
+                            type="button"
+                            aria-expanded={expandedWeek === weekIndex}
+                            className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                             onClick={() => setExpandedWeek(expandedWeek === weekIndex ? null : weekIndex)}
                         >
-                            <span className="text-sm font-medium text-gray-100">
-                                Week {week.weekNumber}{week.focus ? ` · ${week.focus}` : ''}
+                            <span className="font-condensed text-[16px] font-semibold">
+                                Week {week.weekNumber}{week.focus ? ` — ${week.focus}` : ''}
                             </span>
                             {week.isDeload && (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">Deload</span>
+                                <span className="shrink-0 bg-accent px-2 py-0.5 font-condensed text-[12px] font-semibold text-platform-900">Deload</span>
                             )}
                         </button>
+
                         {expandedWeek === weekIndex && (
-                            <div className="px-4 pb-4 flex flex-col gap-3">
+                            <div className="flex flex-col gap-0.5 pb-0.5">
                                 {week.days.map((day, dayIndex) => (
-                                    <div key={day.dayNumber} className="rounded-lg bg-gray-900/50 border border-gray-700 p-3">
-                                        <p className="text-sm font-medium text-gray-200 mb-2">
-                                            Day {day.dayNumber}{day.name ? ` · ${day.name}` : ''}
+                                    <div key={day.dayNumber} className="bg-platform-750 px-4 py-3">
+                                        <p className="mb-2 font-condensed text-[15px] font-semibold text-chalk-dim">
+                                            Day {day.dayNumber}{day.name ? ` — ${day.name}` : ''}
                                         </p>
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1.5">
                                             {day.exercises.map((exercise, exerciseIndex) => (
-                                                <div key={exercise.sortOrder} className="flex items-center gap-2">
-                                                    <span className="flex-1 text-sm text-gray-300 truncate">{exercise.exerciseName}</span>
+                                                <div key={exercise.sortOrder} className="flex items-center gap-2 text-[13px]">
+                                                    <span className="min-w-0 flex-1 truncate text-chalk-dim">{exercise.exerciseName}</span>
                                                     <input
                                                         type="number" min={1} value={exercise.targetSets}
                                                         onChange={e => updateExercise(weekIndex, dayIndex, exerciseIndex, { targetSets: Number(e.target.value) })}
-                                                        className="w-12 text-center bg-gray-700 border border-gray-600 rounded px-1 py-1 text-xs"
+                                                        className={NUMBER_INPUT_CLASS}
                                                         aria-label={`${exercise.exerciseName} sets`}
                                                     />
-                                                    <span className="text-gray-500 text-xs">×</span>
+                                                    <span className="text-steel-dark">×</span>
                                                     <input
                                                         type="number" min={1} value={exercise.targetRepsMin}
                                                         onChange={e => updateExercise(weekIndex, dayIndex, exerciseIndex, { targetRepsMin: Number(e.target.value) })}
-                                                        className="w-12 text-center bg-gray-700 border border-gray-600 rounded px-1 py-1 text-xs"
+                                                        className={NUMBER_INPUT_CLASS}
                                                         aria-label={`${exercise.exerciseName} min reps`}
                                                     />
-                                                    <span className="text-gray-500 text-xs">–</span>
+                                                    <span className="text-steel-dark">–</span>
                                                     <input
                                                         type="number" min={1} value={exercise.targetRepsMax}
                                                         onChange={e => updateExercise(weekIndex, dayIndex, exerciseIndex, { targetRepsMax: Number(e.target.value) })}
-                                                        className="w-12 text-center bg-gray-700 border border-gray-600 rounded px-1 py-1 text-xs"
+                                                        className={NUMBER_INPUT_CLASS}
                                                         aria-label={`${exercise.exerciseName} max reps`}
                                                     />
                                                 </div>
@@ -180,24 +181,28 @@ export default function AiPlanPreview() {
                 ))}
             </div>
 
-            {showRegenerateForm ? (
-                <div className="rounded-xl bg-gray-800 border border-gray-700 p-4 mb-4">
-                    <label className="block text-xs text-gray-400 mb-1">What would you like to change?</label>
-                    <textarea value={feedback} onChange={e => setFeedback(e.target.value)} rows={3} className={`${inputClass} mb-3`} />
-                    <div className="flex gap-2">
-                        <Button color="alternative" className="flex-1" onClick={() => setShowRegenerateForm(false)}>Cancel</Button>
-                        <Button color="purple" className="flex-1" onClick={handleRegenerate} disabled={!feedback.trim() || isRegenerating}>
-                            {isRegenerating ? 'Regenerating…' : 'Regenerate'}
-                        </Button>
+            <div className="flex flex-col gap-2 px-4 pt-4">
+                {showRegenerateForm ? (
+                    <div className="flex flex-col gap-3 bg-platform-800 px-4 py-4">
+                        <div>
+                            <label htmlFor="plan-feedback" className={LABEL_CLASS}>What should change?</label>
+                            <textarea id="plan-feedback" value={feedback} onChange={e => setFeedback(e.target.value)} rows={3} className={INPUT_CLASS} />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="solid" className="flex-1" onClick={handleRegenerate} disabled={!feedback.trim() || isRegenerating}>
+                                {isRegenerating ? 'Rewriting…' : 'Rewrite the plan'}
+                            </Button>
+                            <Button variant="quiet" className="flex-1" onClick={() => setShowRegenerateForm(false)}>Cancel</Button>
+                        </div>
                     </div>
-                </div>
-            ) : (
-                <Button color="alternative" className="w-full mb-2" onClick={() => setShowRegenerateForm(true)}>Regenerate with notes</Button>
-            )}
+                ) : (
+                    <Button variant="quiet" className="w-full" onClick={() => setShowRegenerateForm(true)}>Rewrite with notes</Button>
+                )}
 
-            <Button color="purple" size="lg" className="w-full" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? 'Saving…' : 'Save Program'}
-            </Button>
+                <Button size="lg" className="w-full" onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? 'Saving…' : 'Save program'}
+                </Button>
+            </div>
         </div>
     )
 }

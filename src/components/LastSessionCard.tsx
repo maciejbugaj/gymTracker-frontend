@@ -1,4 +1,3 @@
-import { Card } from "flowbite-react";
 import type { WorkoutSession } from "../types";
 import { formatDuration, formatSessionDate } from "../utils/date";
 
@@ -11,35 +10,55 @@ interface LastSessionCardProps {
 
 export default function LastSessionCard({ session, isLoading, error, description }: LastSessionCardProps) {
     if (isLoading) {
-        return <Card>
-            <div className="h-12 bg-gray-100 animate-pulse rounded-lg">
-                <span className="sr-only">Loading…</span>
+        return (
+            <div className="h-[72px] animate-pulse bg-platform-800">
+                <span className="sr-only">Loading your last session…</span>
             </div>
-        </Card>
+        )
     }
 
     if (error) {
-        return <Card>
-            <div role="alert" className="text-red-500">Error loading last session</div>
-        </Card>
+        return (
+            <div role="alert" className="bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                Your last session didn't load. Try again in a moment.
+            </div>
+        )
     }
 
     if (!session) {
-        return <Card>
-            <p className="text-sm text-gray-400">No sessions yet - start your first one below.</p>
-        </Card>
+        return (
+            <div className="bg-platform-800 px-4 py-3 text-[13px] text-steel">
+                Nothing logged yet. Pick a session below and start your first one.
+            </div>
+        )
     }
+
+    const logs = session.exerciseLogs ?? []
+    const totalSets = logs.length
+    const tonnage = logs.reduce((sum, log) => sum + (log.reps ?? 0) * (log.weightKg ?? 0), 0)
+
     return (
-        <Card>
-            <div className='flex items-center -mb-5'>
-                <h2>{session.workoutTemplateName}</h2>
-            </div>
-            {description && (
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 -mt-8 text-left">{description}</p>
-            )}
-            <div className='flex items-center text-xs -mt-3 sm:text-sm md:text-lg'>
-                <h3>{formatSessionDate(session.startedAt)} - {formatDuration(session.durationSeconds ?? 0)}</h3>
-            </div>
-        </Card>
+        <div className="bg-platform-800 px-4 py-3">
+            <p className="font-condensed text-[16px] font-semibold leading-tight">
+                {session.workoutTemplateName ?? session.dayName}
+            </p>
+            {description && <p className="mt-0.5 text-[11.5px] text-steel">{description}</p>}
+            <p className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11.5px] text-steel">
+                <span>{formatSessionDate(session.startedAt)}</span>
+                <span>
+                    <span className="font-medium text-chalk-dim">{formatDuration(session.durationSeconds ?? 0)}</span>
+                </span>
+                {totalSets > 0 && (
+                    <span>
+                        <span className="font-medium text-chalk-dim">{totalSets}</span> {totalSets === 1 ? 'set' : 'sets'}
+                    </span>
+                )}
+                {tonnage > 0 && (
+                    <span>
+                        <span className="font-medium text-chalk-dim">{tonnage.toLocaleString()}</span> kg total
+                    </span>
+                )}
+            </p>
+        </div>
     )
 }

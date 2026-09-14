@@ -1,53 +1,55 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import prettyMilliseconds from 'pretty-ms';
-import { Button } from 'flowbite-react';
+import Button from './ui/Button';
+import { useStore } from '../stores/StoreSession';
 
-const BREAK_DURATION = 90 * 1000 // 90 seconds in milliseconds
 export default function BreakTimer() {
-    const [isOnBreak, setIsOnBreak] = useState<boolean>(false)
-    const [breakTimer, setBreakTimer] = useState<number>(BREAK_DURATION)
+    // The break lives in the store because ticking a set starts it, with the length taken from
+    // that exercise's prescribed rest — see useLogExerciseSet.
+    const breakStartedAt = useStore(state => state.breakStartedAt)
+    const breakDurationMs = useStore(state => state.breakDurationMs)
+    const startBreak = useStore(state => state.startBreak)
+    const stopBreak = useStore(state => state.stopBreak)
 
-    const breakIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+    // Only the clock is state; what's left is derived, so a restart needs no extra bookkeeping.
+    const [now, setNow] = useState<number>(() => Date.now())
+
     useEffect(() => {
-        if (!isOnBreak) return
+        if (breakStartedAt == null) return
 
-        breakIntervalRef.current = setInterval(() => {
-            setBreakTimer(prev => {
-                if (prev <= 1000) {
-                    clearInterval(breakIntervalRef.current!)
-                    setIsOnBreak(false)
-                    return 0
-                }
-                return prev - 1000
-            })
+        const interval = setInterval(() => {
+            const tick = Date.now()
+            setNow(tick)
+            if (tick - breakStartedAt >= breakDurationMs) clearInterval(interval)
         }, 1000)
 
-        return () => clearInterval(breakIntervalRef.current!)
-    }, [isOnBreak])
+        return () => clearInterval(interval)
+    }, [breakStartedAt, breakDurationMs])
 
-    function onBreakStart() {
-        setIsOnBreak(true)
-        if (breakTimer === 0) {
-            setBreakTimer(BREAK_DURATION)
-        }
-    }
+    // Clamped at both ends: `now` can lag a restart by up to a tick, which would otherwise
+    // read as more than a full break remaining.
+    const remaining = breakStartedAt == null
+        ? breakDurationMs
+        : Math.min(breakDurationMs, Math.max(0, breakDurationMs - (now - breakStartedAt)))
 
-    function onBreakReset() {
-        setIsOnBreak(false)
-        clearInterval(breakIntervalRef.current!)
-        setBreakTimer(BREAK_DURATION)
-    }
+    const isOnBreak = remaining > 0 && breakStartedAt != null
+    const isRunningOut = isOnBreak && remaining <= 10000
+
     return (
-        <div className='flex items-center gap-4 px-4 py-3 border-t border-b border-gray-700/50'>
-            <div className='flex flex-col'>
-                <span className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-0.5">Break</span>
-                <span className={`timer text-2xl ${isOnBreak && breakTimer <= 10000 ? 'text-red-400' : isOnBreak ? 'text-violet-400' : ''}`}>
-                    {prettyMilliseconds(breakTimer, { secondsDecimalDigits: 0 })}
+        <div className="flex items-center gap-4 border-t-2 border-accent bg-platform-800 px-4 py-3">
+            <div>
+                <span className="block font-condensed text-[11px] font-semibold tracking-wide text-steel">Break</span>
+                <span
+                    role="timer"
+                    aria-live="off"
+                    className={`block font-condensed text-[30px] font-bold leading-none ${isRunningOut ? 'text-danger' : 'text-chalk'}`}
+                >
+                    {prettyMilliseconds(remaining, { secondsDecimalDigits: 0 })}
                 </span>
             </div>
-            <div className='flex gap-2 ml-auto'>
-                <Button color="alternative" size="sm" onClick={onBreakStart} disabled={isOnBreak && breakTimer > 0}>Start</Button>
-                <Button color="alternative" size="sm" onClick={onBreakReset}>Reset</Button>
+            <div className="ml-auto flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => startBreak()} disabled={isOnBreak}>Start</Button>
+                <Button variant="outline" size="sm" onClick={stopBreak}>Reset</Button>
             </div>
         </div>
     )

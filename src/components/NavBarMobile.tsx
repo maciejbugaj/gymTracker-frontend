@@ -1,52 +1,56 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaClock, FaCalendarAlt, FaSignOutAlt, FaMagic } from "react-icons/fa";
-import { IoIosCreate } from "react-icons/io";
+import { FiCalendar, FiClock, FiHome, FiLayers, FiLogOut, FiZap } from "react-icons/fi";
 import { useAuth } from "react-oidc-context";
 
-const baseClass = "inline-flex flex-col h-full w-full items-center justify-center px-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 font-medium text-xs gap-1";
-const activeClass = "bg-gray-900 text-violet-400 dark:bg-gray-900 border-t-2 border-violet-500";
-const inactiveClass = "bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 border-t-2 border-transparent";
+const TABS = [
+    { to: '/', label: 'Home', Icon: FiHome, isActive: (path: string) => path === '/' },
+    { to: '/session', label: 'Session', Icon: FiClock, isActive: (path: string) => path === '/session' },
+    { to: '/history', label: 'History', Icon: FiCalendar, isActive: (path: string) => path === '/history' },
+    { to: '/templates', label: 'Templates', Icon: FiLayers, isActive: (path: string) => path.startsWith('/templates') },
+    { to: '/programs', label: 'Plan AI', Icon: FiZap, isActive: (path: string) => path.startsWith('/programs') || path.startsWith('/ai-plan') },
+] as const
+
+const tabClass = "flex flex-col items-center justify-center gap-1 pt-2 pb-2.5 font-condensed text-[11px] font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
 
 export default function NavBarMobile() {
     const { pathname } = useLocation();
     const auth = useAuth();
+
     return (
         <>
-            <div className="fixed top-2 right-2 z-50 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs text-gray-500 shadow dark:bg-gray-800/90 dark:text-gray-400">
-                <span className="max-w-40 truncate">{auth.user?.profile.email}</span>
+            <header className="flex items-center justify-end gap-2 border-b border-platform-600 bg-platform-950 px-4 py-1.5 text-[11px] text-steel">
+                <span className="truncate">{auth.user?.profile.email}</span>
                 <button
+                    type="button"
                     onClick={() => auth.signoutRedirect()}
-                    aria-label="Wyloguj"
-                    className="hover:text-gray-900 dark:hover:text-white"
+                    aria-label="Sign out"
+                    className="shrink-0 cursor-pointer text-steel transition-colors hover:text-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                    <FaSignOutAlt size={14} aria-hidden="true" />
+                    <FiLogOut size={14} aria-hidden="true" />
                 </button>
-            </div>
+            </header>
 
-            <div className="fixed bottom-0 left-0 z-50 w-full h-16 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <div className="grid h-full grid-cols-5 mx-auto">
-                    <Link to="/" className={`${baseClass} ${pathname === '/' ? activeClass : inactiveClass}`}>
-                        <FaHome size={18} aria-hidden="true" />
-                        <span>Home</span>
-                    </Link>
-                    <Link to="/session" className={`${baseClass} ${pathname === '/session' ? activeClass : inactiveClass}`}>
-                        <FaClock size={18} aria-hidden="true" />
-                        <span>Session</span>
-                    </Link>
-                    <Link to="/history" className={`${baseClass} ${pathname === '/history' ? activeClass : inactiveClass}`}>
-                        <FaCalendarAlt size={18} aria-hidden="true" />
-                        <span>History</span>
-                    </Link>
-                    <Link to="/templates" className={`${baseClass} ${pathname === '/templates' ? activeClass : inactiveClass}`}>
-                        <IoIosCreate size={18} aria-hidden="true" />
-                        <span>Templates</span>
-                    </Link>
-                    <Link to="/programs" className={`${baseClass} ${pathname.startsWith('/programs') || pathname.startsWith('/ai-plan') ? activeClass : inactiveClass}`}>
-                        <FaMagic size={18} aria-hidden="true" />
-                        <span>Plan AI</span>
-                    </Link>
+            <nav
+                aria-label="Main"
+                className="fixed bottom-0 left-1/2 z-50 w-full max-w-[560px] -translate-x-1/2 border-t border-platform-600 bg-platform-950"
+            >
+                <div className="grid grid-cols-5">
+                    {TABS.map(({ to, label, Icon, isActive }) => {
+                        const active = isActive(pathname)
+                        return (
+                            <Link
+                                key={to}
+                                to={to}
+                                aria-current={active ? 'page' : undefined}
+                                className={`${tabClass} ${active ? 'text-accent' : 'text-steel-dark hover:text-steel'}`}
+                            >
+                                <Icon size={18} aria-hidden="true" />
+                                <span>{label}</span>
+                            </Link>
+                        )
+                    })}
                 </div>
-            </div>
+            </nav>
         </>
     )
 }

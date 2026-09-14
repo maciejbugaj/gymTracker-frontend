@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Card } from 'flowbite-react'
 import { useSessions } from '../hooks/useSessions'
 import type { ExerciseLog, WorkoutSession } from '../types'
 import { formatSessionDate } from '../utils/date'
@@ -21,48 +20,56 @@ function formatDurationMinutes(seconds: number): string {
     return `${Math.round(seconds / 60)} min`
 }
 
-function SessionCard({ session }: { session: WorkoutSession }) {
+function SessionRow({ session }: { session: WorkoutSession }) {
     const [expanded, setExpanded] = useState(false)
     const logs = session.exerciseLogs ?? []
     const totalWeight = calcTotalWeight(logs)
     const exerciseGroups = groupByExercise(logs)
 
     return (
-        <Card className="mb-3">
-            <div className="flex justify-between items-start gap-2">
-                <div>
-                    <h2 className="text-base font-semibold">{session.workoutTemplateName}</h2>
-                    <p className="text-xs text-gray-500">{formatSessionDate(session.startedAt)}</p>
+        <div className="bg-platform-800">
+            <div className="px-4 py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-condensed text-[16px] font-semibold leading-tight">
+                        {session.workoutTemplateName ?? session.dayName}
+                    </p>
+                    <p className="shrink-0 text-[11.5px] text-steel">{formatSessionDate(session.startedAt)}</p>
                 </div>
-            </div>
-            <div className="flex gap-4 text-xs text-gray-400 mt-1">
-                {session.durationSeconds != null && (
-                    <span>⏱ {formatDurationMinutes(session.durationSeconds)}</span>
+                <p className="mt-1 flex flex-wrap gap-x-4 text-[11.5px] text-steel">
+                    {session.durationSeconds != null && (
+                        <span><span className="font-medium text-chalk-dim">{formatDurationMinutes(session.durationSeconds)}</span></span>
+                    )}
+                    {logs.length > 0 && (
+                        <span><span className="font-medium text-chalk-dim">{logs.length}</span> {logs.length === 1 ? 'set' : 'sets'}</span>
+                    )}
+                    {totalWeight > 0 && (
+                        <span><span className="font-medium text-chalk-dim">{totalWeight.toLocaleString()}</span> kg total</span>
+                    )}
+                </p>
+                {logs.length > 0 && (
+                    <button
+                        type="button"
+                        aria-expanded={expanded}
+                        onClick={() => setExpanded(e => !e)}
+                        className="mt-2 cursor-pointer font-condensed text-[13px] font-semibold text-accent transition-colors hover:text-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                        {expanded ? 'Hide exercises' : 'Show exercises'}
+                    </button>
                 )}
-                {totalWeight > 0 && (
-                    <span>⚖ {totalWeight.toLocaleString()} kg total</span>
-                )}
             </div>
-            {logs.length > 0 && (
-                <button
-                    onClick={() => setExpanded(e => !e)}
-                    className="mt-2 text-xs text-violet-400 hover:text-violet-300 font-medium text-left"
-                >
-                    {expanded ? '▴ Hide exercises' : '▾ Show exercises'}
-                </button>
-            )}
+
             {expanded && (
-                <div className="mt-3 flex flex-col gap-3">
+                <div className="flex flex-col gap-3 bg-platform-750 px-4 py-3">
                     {Array.from(exerciseGroups.entries()).map(([name, sets]) => (
                         <div key={name}>
-                            <p className="text-xs font-semibold text-gray-300 mb-1">{name}</p>
-                            <div className="flex flex-wrap gap-2">
+                            <p className="mb-1 font-condensed text-[14px] font-semibold text-chalk-dim">{name}</p>
+                            <div className="flex flex-wrap gap-1.5">
                                 {sets.map((log, i) => (
                                     <span
                                         key={log.id ?? i}
-                                        className="font-mono text-xs bg-gray-700 text-gray-300 rounded px-2 py-1"
+                                        className="bg-platform-600 px-2 py-0.5 font-condensed text-[13px] font-semibold"
                                     >
-                                        Set {log.setNumber ?? i + 1}: {log.reps} × {log.weightKg}kg
+                                        {log.reps} × {log.weightKg} kg
                                     </span>
                                 ))}
                             </div>
@@ -70,7 +77,7 @@ function SessionCard({ session }: { session: WorkoutSession }) {
                     ))}
                 </div>
             )}
-        </Card>
+        </div>
     )
 }
 
@@ -78,31 +85,38 @@ export default function History() {
     const { data: sessions, isLoading, error } = useSessions()
 
     return (
-        <div className="w-full px-4 pb-20">
-            <div className="p-4">
-                <h1>History</h1>
-                <p className="text-gray-500 text-sm">Past workout sessions</p>
-            </div>
+        <div className="w-full pb-24">
+            <header className="px-4 pb-3 pt-5">
+                <h1 className="font-condensed text-[26px] font-bold leading-none">History</h1>
+                <p className="mt-1 text-[12.5px] text-steel">Every session you've finished.</p>
+            </header>
 
             {isLoading && (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-0.5">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-24 bg-gray-700 animate-pulse rounded-xl" />
+                        <div key={i} className="h-[84px] animate-pulse bg-platform-800" />
                     ))}
+                    <span className="sr-only">Loading your sessions…</span>
                 </div>
             )}
 
             {error && (
-                <p className="text-red-400 text-sm">Failed to load sessions.</p>
+                <p role="alert" className="bg-platform-800 px-4 py-3 text-[13px] text-danger">
+                    Your sessions didn't load. Try again in a moment.
+                </p>
             )}
 
             {sessions && sessions.length === 0 && (
-                <p className="text-gray-500 text-sm">No workout sessions yet.</p>
+                <p className="bg-platform-800 px-4 py-3 text-[13px] text-steel">
+                    Nothing here yet. Finish a session and it will show up.
+                </p>
             )}
 
-            {sessions?.map(session => (
-                <SessionCard key={session.id} session={session} />
-            ))}
+            <div className="flex flex-col gap-0.5">
+                {sessions?.map(session => (
+                    <SessionRow key={session.id} session={session} />
+                ))}
+            </div>
         </div>
     )
 }
